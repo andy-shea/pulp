@@ -21,7 +21,7 @@ abstract class AbstractModule implements Module {
 
   protected $binder;
 
-  public function __construct(Binding\Binder $binder) {
+  public function setBinder(Binding\Binder $binder) {
     $this->binder = $binder;
   }
 

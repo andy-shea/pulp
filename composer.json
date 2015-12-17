@@ -11,7 +11,7 @@
   "license": "MIT",
   "authors": [{"name": "Andy Shea", "email": "andrew@octahedron.com.au"}],
   "require": {
-    "php": ">=5.3",
+    "php": ">=5.5",
     "doctrine/annotations": "^1.2"
   },
   "require-dev": {
