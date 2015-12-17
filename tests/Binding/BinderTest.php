@@ -37,9 +37,10 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
   public function testModuleInstall() {
     $moduleMock = $this->getMockBuilder('Octahedron\Pulp\Module')
         ->disableOriginalConstructor()
-        ->setMethods(['configure'])
+        ->setMethods(['setBinder', 'configure'])
         ->getMock();
     $binder = new Binder(new AnnotationReader());
+    $moduleMock->expects($this->once())->method('setBinder');
     $moduleMock->expects($this->once())->method('configure');
 
     $binder->install($moduleMock);
@@ -47,9 +48,10 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
 
   public function testSameModuleInstallsOnlyOnce() {
     $moduleMock = $this->getMockBuilder('Octahedron\Pulp\Module')
-        ->setMethods(['configure'])
+        ->setMethods(['setBinder', 'configure'])
         ->getMock();
     $binder = new Binder(new AnnotationReader());
+    $moduleMock->expects($this->once())->method('setBinder');
     $moduleMock->expects($this->once())->method('configure');
 
     $binder->install($moduleMock);

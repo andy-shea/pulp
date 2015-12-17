@@ -1,15 +1,15 @@
 # Pulp
 **Latest release: [1.0](https://github.com/octahedron/pulp/releases/latest)**<br/>
-**Continuous Integration:**<br/>
-**Requirements:** PHP 5.3+
+**Continuous Integration:** [![Build Status](https://travis-ci.org/octahedron/pulp.svg?branch=master)](https://travis-ci.org/octahedron/pulp)<br/>
+**Requirements:** PHP 5.5+
 
-Pulp handles the tedious wiring of object graphs for you leaving your code easier to change, test, and reuse. Think of Pulp's `@Inject` as the new new.
+Pulp handles the tedious wiring of object graphs for you leaving your code easier to change, test, and reuse. Think of Pulp's `@Inject` as the new `new`.
 
 ## Getting Started
 The easiest way to get up and running with Pulp is via Composer:
 
 ```
-composer require octahedron\pulp
+composer require octahedron/pulp
 ```
 
 From here, illustrating Pulp's usage is best served with a simple example. A security service that authenticates and authorises users in an app is a common requirement.  This security service could depend on an authentication strategy and access control list to perform the respective tasks:

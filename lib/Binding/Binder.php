@@ -34,6 +34,7 @@ class Binder {
 
   public function install(Module $module) {
     if (!isset($this->modules[spl_object_hash($module)])) {
+      $module->setBinder($this);
       $module->configure();
       $this->getProviderMethods($module);
       $this->modules[spl_object_hash($module)] = true;
