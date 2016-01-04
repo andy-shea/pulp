@@ -14,6 +14,7 @@ namespace Octahedron\Pulp\Assisted;
 use Octahedron\Pulp\Provider\Provider;
 use Octahedron\Pulp\Injector;
 use Octahedron\Pulp\Meta\Annotation\Inject;
+use Octahedron\Pulp\Meta\Annotation\Returns;
 use Doctrine\Common\Annotations\Reader;
 
 /**
@@ -83,7 +84,7 @@ class FactoryProvider implements Provider {
   protected function createFactoryMethods() {
     $reflectedInterface = new \ReflectionClass($this->factoryInterface);
     return array_map(function($reflectedMethod) {
-      $returns = $this->annotationReader->getMethodAnnotation($reflectedMethod, 'Octahedron\Pulp\Meta\Annotation\Returns');
+      $returns = $this->annotationReader->getMethodAnnotation($reflectedMethod, Returns::CLASS);
       if ($returns) {
         return [
           'name' => $reflectedMethod->getName(),

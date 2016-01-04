@@ -35,7 +35,7 @@ class Injector {
   }
 
   public function getInstance($className, $assistedParams = false, $isOptional = false) {
-    if ($className === 'Octahedron\Pulp\Injector') return $this;
+    if ($className === __CLASS__) return $this;
     $binding = $this->binder->getBindingFor($className);
     if ($binding) return $binding->getDependency($this, $assistedParams, $isOptional);
     return $this->createInstance($className, $assistedParams, $isOptional);

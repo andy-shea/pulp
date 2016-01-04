@@ -11,6 +11,10 @@
 
 namespace Octahedron\Pulp\Meta;
 
+use Octahedron\Pulp\Meta\Annotation\Inject;
+use Octahedron\Pulp\Meta\Annotation\Named;
+use Octahedron\Pulp\Meta\Annotation\Provides;
+use Octahedron\Pulp\Meta\Annotation\Assisted;
 use Doctrine\Common\Annotations\Reader;
 
 /**
@@ -33,7 +37,7 @@ class InjectionMetaClass {
 
   protected function getInjectableMethods($classMethods) {
     foreach ($classMethods as $reflectedMethod) {
-      $inject = $this->annotationReader->getMethodAnnotation($reflectedMethod, 'Octahedron\Pulp\Meta\Annotation\Inject');
+      $inject = $this->annotationReader->getMethodAnnotation($reflectedMethod, Inject::CLASS);
       if ($inject) {
         $parameters = [];
         $namedParameters = $this->extractNamedParameters($this->annotationReader, $reflectedMethod);
@@ -63,17 +67,17 @@ class InjectionMetaClass {
   }
 
   protected function extractNamedParameters(Reader $annotationReader, \ReflectionMethod $reflectedMethod) {
-    $namedParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, 'Octahedron\Pulp\Meta\Annotation\Named');
+    $namedParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, Named::CLASS);
     return ($namedParametersAnnotations) ? (array)$namedParametersAnnotations->value : [];
   }
 
   protected function extractProviderParameters(Reader $annotationReader, \ReflectionMethod $reflectedMethod) {
-    $providerParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, 'Octahedron\Pulp\Meta\Annotation\Provides');
+    $providerParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, Provides::CLASS);
     return ($providerParametersAnnotations) ? (array)$providerParametersAnnotations->value : [];
   }
 
   protected function extractAssistedParameters(Reader $annotationReader, \ReflectionMethod $reflectedMethod) {
-    $assistedParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, 'Octahedron\Pulp\Meta\Annotation\Assisted');
+    $assistedParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, Assisted::CLASS);
     $assistedParameters = [];
     if ($assistedParametersAnnotations) {
       foreach ((array)$assistedParametersAnnotations->value as $assistedParameter) $assistedParameters[$assistedParameter] = true;

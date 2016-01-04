@@ -102,7 +102,7 @@ $this->bind('dbConnectionString')->toInstance('pgsql:host=localhost;port=5432;db
 **Note:** The second example highlights the ability to bind to a parameter name instead of a type.  This can be used for resolving primitive dependencies.
 
 ### Provider Bindings
-When you need to do more work to create an object, use an `@Provides` method. The method must be defined within a module, and it must have an `@Provides` annotation with a corresponding bound type. The method will be invoked and the returned object injected whenever an instance of that type is needed:
+When you need to do more work to create an object, use a `@Provides` method. The method must be defined within a module, and it must have a `@Provides` annotation with a corresponding bound type. The method will be invoked and the returned object injected whenever an instance of that type is needed:
 
 ```php
 public class SecurityModule extends AbstractModule {

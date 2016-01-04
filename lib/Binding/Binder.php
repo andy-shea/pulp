@@ -15,6 +15,8 @@ use Octahedron\Pulp\Module;
 use Octahedron\Pulp\Provider\ProviderMethod;
 use Octahedron\Pulp\Scope\Scopes;
 use Octahedron\Pulp\Assisted\FactoryProvider;
+use Octahedron\Pulp\Meta\Annotation\Provides;
+use Octahedron\Pulp\Meta\Annotation\Singleton;
 use Doctrine\Common\Annotations\Reader;
 
 /**
@@ -55,10 +57,10 @@ class Binder {
   protected function getProviderMethods(Module $module) {
     $reflectedClass = new \ReflectionClass($module);
     foreach ($reflectedClass->getMethods() as $reflectedMethod) {
-      $provides = $this->annotationReader->getMethodAnnotation($reflectedMethod, 'Octahedron\Pulp\Meta\Annotation\Provides');
+      $provides = $this->annotationReader->getMethodAnnotation($reflectedMethod, Provides::CLASS);
       if ($provides) {
         $binding = $this->bind($provides->value)->toProvider(new ProviderMethod($module, $reflectedMethod->getName()));
-        if ($this->annotationReader->getMethodAnnotation($reflectedMethod, 'Octahedron\Pulp\Meta\Annotation\Singleton')) {
+        if ($this->annotationReader->getMethodAnnotation($reflectedMethod, Singleton::CLASS)) {
           $binding->in(Scopes::singleton());
         }
       }
