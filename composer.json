@@ -1,5 +1,5 @@
 {
-  "name": "octahedron/pulp",
+  "name": "andy-shea/pulp",
   "description": "A PHP dependency injection framework based on Google's Guice",
   "type": "library",
   "keywords": [
@@ -7,9 +7,9 @@
     "injection",
     "guice"
   ],
-  "homepage": "https://github.com/octahedron/pulp",
+  "homepage": "https://github.com/andy-shea/pulp",
   "license": "MIT",
-  "authors": [{"name": "Andy Shea", "email": "andrew@octahedron.com.au"}],
+  "authors": [{"name": "Andy Shea", "email": "aa.shea@gmail.com"}],
   "require": {
     "php": ">=5.5",
     "doctrine/annotations": "^1.2"

@@ -1,6 +1,6 @@
 # Pulp
-**Latest release: [1.0](https://github.com/octahedron/pulp/releases/latest)**<br/>
-**Continuous Integration:** [![Build Status](https://travis-ci.org/octahedron/pulp.svg?branch=master)](https://travis-ci.org/octahedron/pulp)<br/>
+**Latest release: [1.1.0](https://github.com/andy-shea/pulp/releases/latest)**<br/>
+**Continuous Integration:** [![Build Status](https://travis-ci.org/andy-shea/pulp.svg?branch=master)](https://travis-ci.org/andy-shea/pulp)<br/>
 **Requirements:** PHP 5.5+
 
 Pulp handles the tedious wiring of object graphs for you leaving your code easier to change, test, and reuse. Think of Pulp's `@Inject` as the new `new`.
@@ -9,7 +9,7 @@ Pulp handles the tedious wiring of object graphs for you leaving your code easie
 The easiest way to get up and running with Pulp is via Composer:
 
 ```
-composer require octahedron/pulp
+composer require andy-shea/pulp
 ```
 
 From here, illustrating Pulp's usage is best served with a simple example. A security service that authenticates and authorises users in an app is a common requirement.  This security service could depend on an authentication strategy and access control list to perform the respective tasks:
@@ -333,8 +333,8 @@ public function provideDatabase() {
 ## Injections
 The dependency injection pattern separates behaviour from dependency resolution. Rather than looking up dependencies directly or from factories, the pattern recommends that dependencies are passed in. The process of setting dependencies into an object is called injection.
 
-### Constructor and Method Injections
-Pulp injects any methods or constructor defined on a class that is annotated with `@Inject`:
+### Property, Constructor, and Method Injections
+Pulp injects any properties, methods, or constructor defined on a class that is annotated with `@Inject`:
 
 ```php
 class SecurityService {
@@ -342,6 +342,7 @@ class SecurityService {
   protected $strategy;
   protected $acl;
   protected $log;
+  /** @Inject(EmailService::class) */ protected $emailService;
 
   /** @Inject **/
   public function __construct(AuthenticationStrategy $strategy,
@@ -365,6 +366,7 @@ class SecurityService {
 
 }
 ```
+Note that as PHP doesn't support [type-hinting on properties](https://wiki.php.net/rfc/typed-properties), `@Inject` can accept a `string` parameter designating the property type to inject.
 
 ### Optional Injections
 All dependencies in an injected method or constructor must be resolvable or an exception will be thrown.  The exceptions to this rule are parameters that have been defined with a default value; in these instances, Pulp will automatically fallback to the supplied default:
