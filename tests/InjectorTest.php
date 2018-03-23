@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
- 
+
 namespace Octahedron\Pulp\Test;
 
 use Octahedron\Pulp\Injector;
@@ -38,6 +38,13 @@ class InjectorTest extends \PHPUnit_Framework_TestCase {
     $this->assertInstanceOf('Octahedron\Pulp\Test\Test', $object->test);
   }
 
+  public function testPropertyInject() {
+    $injector = new Injector($this->binderMock, $this->annotationReader);
+    $object = $injector->createInstance('Octahedron\Pulp\Test\TestPropertyInject');
+    $this->assertInstanceOf('Octahedron\Pulp\Test\TestPropertyInject', $object);
+    $this->assertInstanceOf('Octahedron\Pulp\Test\Test', $object->test);
+  }
+
   public function testSetterInject() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
     $object = $injector->createInstance('Octahedron\Pulp\Test\TestSetterInject');
@@ -45,12 +52,13 @@ class InjectorTest extends \PHPUnit_Framework_TestCase {
     $this->assertInstanceOf('Octahedron\Pulp\Test\Test', $object->test);
   }
 
-  public function testConstructorAndSetterInject() {
+  public function testAllInjectTargets() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Octahedron\Pulp\Test\TestConstructorAndSetterInject');
-    $this->assertInstanceOf('Octahedron\Pulp\Test\TestConstructorAndSetterInject', $object);
+    $object = $injector->createInstance('Octahedron\Pulp\Test\TestAllInjectTargets');
+    $this->assertInstanceOf('Octahedron\Pulp\Test\TestAllInjectTargets', $object);
     $this->assertInstanceOf('Octahedron\Pulp\Test\Test', $object->test);
     $this->assertInstanceOf('Octahedron\Pulp\Test\Two', $object->two);
+    $this->assertInstanceOf('Octahedron\Pulp\Test\Three', $object->three);
   }
 
   public function testInjectorReturnsItselfWhenGettingInjectorInstance() {
@@ -100,6 +108,11 @@ class InjectorTest extends \PHPUnit_Framework_TestCase {
     $injector->createInstance('Octahedron\Pulp\Test\TestMissingSetterInject');
   }
 
+  public function testNoErrorIfOptionalPropertyClassMissing() {
+    $injector = new Injector($this->binderMock, $this->annotationReader);
+    $injector->createInstance('Octahedron\Pulp\Test\TestMissingOptionalPropertyInject');
+  }
+
   public function testAssistedParameter() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
     $param = 'test';
@@ -141,6 +154,7 @@ class InjectorTest extends \PHPUnit_Framework_TestCase {
 
 class Test {}
 class Two {}
+class Three {}
 
 class TestConstructorInject {
 
@@ -153,6 +167,12 @@ class TestConstructorInject {
 
 }
 
+class TestPropertyInject {
+
+  /** @Inject(Test::class) */
+  public $test;
+
+}
 
 class TestSetterInject {
 
@@ -165,10 +185,11 @@ class TestSetterInject {
 
 }
 
-class TestConstructorAndSetterInject {
+class TestAllInjectTargets {
 
   public $test;
   public $two;
+  /** @Inject(Three::class) */ public $three;
 
   /** @Inject */
   public function __construct(Test $test) {
@@ -207,6 +228,13 @@ class TestMissingSetterInject {
 
   /** @Inject */
   public function testSetter(MissingClass $class) {}
+
+}
+
+class TestMissingOptionalPropertyInject {
+
+  /** @Inject(MissingClass::class) */
+  public $class = null;
 
 }
 

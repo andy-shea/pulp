@@ -43,8 +43,24 @@ class Injector {
 
   public function injectMembers($object) {
     $className = get_class($object);
-    if (!isset($this->classes[$className])) $this->classes[$className] = new Meta\InjectionMetaClass($className, $this->annotationReader);
+    if (!isset($this->classes[$className])) {
+      $this->classes[$className] = new Meta\InjectionMetaClass($className, $this->annotationReader);
+    }
+    $this->injectProperties($object, $this->classes[$className]->injectableProperties());
     $this->injectSetters($object, $this->classes[$className]->injectableSetters());
+  }
+
+  protected function injectProperties($object, $properties) {
+    $reflectedObject = new \ReflectionObject($object);
+    foreach ($properties as $property => $parameterMeta) {
+      $reflectedProperty = $reflectedObject->getProperty($property);
+      $value = $this->createParameter($parameterMeta);
+      if ($reflectedProperty->isPublic()) $object->$property = $value;
+      else {
+        $reflectedProperty->setAccessible(true);
+        $reflectedProperty->setValue($object, $value);
+      }
+    }
   }
 
   protected function injectSetters($object, $setters) {
@@ -59,14 +75,14 @@ class Injector {
   // should only be called internally via Binding
   public function createInstance($className, $assistedParams = null, $isOptional = false) {
     if (class_exists($className)) {
-      if (!isset($this->classes[$className])) $this->classes[$className] = new Meta\InjectionMetaClass($className, $this->annotationReader);
+      if (!isset($this->classes[$className])) {
+        $this->classes[$className] = new Meta\InjectionMetaClass($className, $this->annotationReader);
+      }
       $class = new \ReflectionClass($className);
-
-      $object = ($class->getConstructor()) ?
-          $class->newInstanceArgs($this->createConstructorParameters($this->classes[$className], $assistedParams)) :
-          new $className();
-
-      $this->injectSetters($object, $this->classes[$className]->injectableSetters());
+      $object = ($class->getConstructor())
+        ? $class->newInstanceArgs($this->createConstructorParameters($this->classes[$className], $assistedParams))
+        : new $className();
+      $this->injectMembers($object);
       return $object;
     }
     if (!$isOptional) throw new Binding\BindingException('No binding found for interface "' . $className . '"');

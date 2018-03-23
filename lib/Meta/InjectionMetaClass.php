@@ -24,6 +24,7 @@ use Doctrine\Common\Annotations\Reader;
  */
 class InjectionMetaClass {
 
+  protected $injectableProperties = [];
   protected $injectableMethods = [];
   protected $class;
   protected $annotationReader;
@@ -32,7 +33,38 @@ class InjectionMetaClass {
     $this->class = $className;
     $this->annotationReader = $annotationReader;
     $reflectedClass = new \ReflectionClass($className);
+    $propertyTypes = \ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PRIVATE;
+    $this->getInjectableProperties($reflectedClass->getProperties($propertyTypes), $reflectedClass->getDefaultProperties());
     $this->getInjectableMethods($reflectedClass->getMethods());
+  }
+
+  protected function getInjectableProperties($classProperties, $defaults) {
+    foreach ($classProperties as $reflectedProperty) {
+      $inject = $this->annotationReader->getPropertyAnnotation($reflectedProperty, Inject::CLASS);
+      if ($inject) {
+        $name = $reflectedProperty->getName();
+        $namedProperty= $this->extractNamedProperty($this->annotationReader, $reflectedProperty);
+        $providerProperty= $this->extractProviderProperty($this->annotationReader, $reflectedProperty);
+        $propertyMeta = new InjectionParameter($name, $reflectedProperty);
+        if ($namedProperty) $propertyMeta->setAlias($namedProperty);
+        else if ($providerProperty) $propertyMeta->setProvides($providerProperty);
+        else if ($inject->value) $propertyMeta->setInterface($inject->value);
+        // can't distinguish between actual null assignment and PHP default so it will always have a default
+        // TODO: can this be improved?
+        $propertyMeta->setDefaultValue($defaults[$name]);
+        $this->injectableProperties[$name] = $propertyMeta;
+      }
+    }
+  }
+
+  protected function extractNamedProperty(Reader $annotationReader, \ReflectionProperty $reflectedProperty) {
+    $namedPropertyAnnotation = $annotationReader->getPropertyAnnotation($reflectedProperty, Named::CLASS);
+    if ($namedPropertyAnnotation) return $namedPropertyAnnotation->value;
+  }
+
+  protected function extractProviderProperty(Reader $annotationReader, \ReflectionProperty $reflectedProperty) {
+    $providerPropertyAnnotation = $annotationReader->getPropertyAnnotation($reflectedProperty, Provides::CLASS);
+    if ($providerPropertyAnnotation) return $providerPropertyAnnotation->value;
   }
 
   protected function getInjectableMethods($classMethods) {
@@ -44,13 +76,14 @@ class InjectionMetaClass {
         $assistedParameters = $this->extractAssistedParameters($this->annotationReader, $reflectedMethod);
         $providerParameters = $this->extractProviderParameters($this->annotationReader, $reflectedMethod);
         foreach ($reflectedMethod->getParameters() as $parameter) {
-          $injectionParameter = new InjectionParameter($parameter->getName());
-          if (isset($assistedParameters[$parameter->getName()])) {
+          $name = $parameter->getName();
+          $injectionParameter = new InjectionParameter($name, $parameter);
+          if (isset($assistedParameters[$name])) {
             if ($reflectedMethod->getName() !== '__construct') throw new \Exception('Assisted injection not possible for setters');
             $injectionParameter->setIsAssisted(true);
           }
-          else if (isset($namedParameters[$parameter->getName()])) $injectionParameter->setAlias($namedParameters[$parameter->getName()]);
-          else if (isset($providerParameters[$parameter->getName()])) $injectionParameter->setProvides($providerParameters[$parameter->getName()]);
+          else if (isset($namedParameters[$name])) $injectionParameter->setAlias($namedParameters[$name]);
+          else if (isset($providerParameters[$name])) $injectionParameter->setProvides($providerParameters[$name]);
           else if ($class = $this->getParameterClassName($parameter)) $injectionParameter->setInterface($class);
           if ($parameter->isDefaultValueAvailable()) $injectionParameter->setDefaultValue($parameter->getDefaultValue());
           $parameters[] = $injectionParameter;
@@ -96,6 +129,10 @@ class InjectionMetaClass {
 
   public function injectableSetters() {
     return array_diff_key($this->injectableMethods, array_flip(['__construct']));
+  }
+
+  public function injectableProperties() {
+    return $this->injectableProperties;
   }
 
 }
