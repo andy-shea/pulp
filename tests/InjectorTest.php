@@ -3,17 +3,17 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Test;
+namespace Pulp\Test;
 
-use Octahedron\Pulp\Injector;
-use Octahedron\Pulp\Meta\Annotation\Inject;
-use Octahedron\Pulp\Meta\Annotation\Assisted;
+use Pulp\Injector;
+use Pulp\Meta\Annotation\Inject;
+use Pulp\Meta\Annotation\Assisted;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\AnnotationReader;
 
@@ -24,46 +24,46 @@ class InjectorTest extends \PHPUnit_Framework_TestCase {
 
   public function setup() {
     AnnotationRegistry::registerLoader(function($class) {
-      $file = __DIR__ . '/../lib/' . str_replace('\\', '/', substr($class, strlen('Octahedron\\Pulp\\'))) . '.php';
+      $file = __DIR__ . '/../lib/' . str_replace('\\', '/', substr($class, strlen('Pulp\\'))) . '.php';
       if (file_exists($file)) return !!include $file;
     });
     $this->annotationReader = new AnnotationReader();
-    $this->binderMock = $this->getMockBuilder('Octahedron\Pulp\Binding\Binder')->setConstructorArgs([$this->annotationReader])->getMock();
+    $this->binderMock = $this->getMockBuilder('Pulp\Binding\Binder')->setConstructorArgs([$this->annotationReader])->getMock();
   }
 
   public function testConstructorInject() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Octahedron\Pulp\Test\TestConstructorInject');
-    $this->assertInstanceOf('Octahedron\Pulp\Test\TestConstructorInject', $object);
-    $this->assertInstanceOf('Octahedron\Pulp\Test\Test', $object->test);
+    $object = $injector->createInstance('Pulp\Test\TestConstructorInject');
+    $this->assertInstanceOf('Pulp\Test\TestConstructorInject', $object);
+    $this->assertInstanceOf('Pulp\Test\Test', $object->test);
   }
 
   public function testPropertyInject() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Octahedron\Pulp\Test\TestPropertyInject');
-    $this->assertInstanceOf('Octahedron\Pulp\Test\TestPropertyInject', $object);
-    $this->assertInstanceOf('Octahedron\Pulp\Test\Test', $object->test);
+    $object = $injector->createInstance('Pulp\Test\TestPropertyInject');
+    $this->assertInstanceOf('Pulp\Test\TestPropertyInject', $object);
+    $this->assertInstanceOf('Pulp\Test\Test', $object->test);
   }
 
   public function testSetterInject() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Octahedron\Pulp\Test\TestSetterInject');
-    $this->assertInstanceOf('Octahedron\Pulp\Test\TestSetterInject', $object);
-    $this->assertInstanceOf('Octahedron\Pulp\Test\Test', $object->test);
+    $object = $injector->createInstance('Pulp\Test\TestSetterInject');
+    $this->assertInstanceOf('Pulp\Test\TestSetterInject', $object);
+    $this->assertInstanceOf('Pulp\Test\Test', $object->test);
   }
 
   public function testAllInjectTargets() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Octahedron\Pulp\Test\TestAllInjectTargets');
-    $this->assertInstanceOf('Octahedron\Pulp\Test\TestAllInjectTargets', $object);
-    $this->assertInstanceOf('Octahedron\Pulp\Test\Test', $object->test);
-    $this->assertInstanceOf('Octahedron\Pulp\Test\Two', $object->two);
-    $this->assertInstanceOf('Octahedron\Pulp\Test\Three', $object->three);
+    $object = $injector->createInstance('Pulp\Test\TestAllInjectTargets');
+    $this->assertInstanceOf('Pulp\Test\TestAllInjectTargets', $object);
+    $this->assertInstanceOf('Pulp\Test\Test', $object->test);
+    $this->assertInstanceOf('Pulp\Test\Two', $object->two);
+    $this->assertInstanceOf('Pulp\Test\Three', $object->three);
   }
 
   public function testInjectorReturnsItselfWhenGettingInjectorInstance() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $this->assertSame($injector, $injector->getInstance('Octahedron\Pulp\Injector'));
+    $this->assertSame($injector, $injector->getInstance('Pulp\Injector'));
   }
 
   /**
@@ -82,70 +82,70 @@ class InjectorTest extends \PHPUnit_Framework_TestCase {
 
   public function testNoErrorIfOptionalConstructorParameterClassMissing() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Octahedron\Pulp\Test\TestMissingOptionalConstructorInject');
+    $injector->createInstance('Pulp\Test\TestMissingOptionalConstructorInject');
   }
 
   /**
    * @expectedException Exception
-   * @expectedExceptionMessage No binding found for interface "Octahedron\Pulp\Test\MissingClass"
+   * @expectedExceptionMessage No binding found for interface "Pulp\Test\MissingClass"
    */
   public function testErrorIfNonOptionalConstructorParameterClassMissing() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Octahedron\Pulp\Test\TestMissingClassConstructorInject');
+    $injector->createInstance('Pulp\Test\TestMissingClassConstructorInject');
   }
 
   public function testNoErrorIfOptionalSetterParameterClassMissing() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Octahedron\Pulp\Test\TestMissingOptionalSetterInject');
+    $injector->createInstance('Pulp\Test\TestMissingOptionalSetterInject');
   }
 
   /**
    * @expectedException Exception
-   * @expectedExceptionMessage No binding found for interface "Octahedron\Pulp\Test\MissingClass"
+   * @expectedExceptionMessage No binding found for interface "Pulp\Test\MissingClass"
    */
   public function testErrorIfNonOptionalSetterParameterClassMissing() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Octahedron\Pulp\Test\TestMissingSetterInject');
+    $injector->createInstance('Pulp\Test\TestMissingSetterInject');
   }
 
   public function testNoErrorIfOptionalPropertyClassMissing() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Octahedron\Pulp\Test\TestMissingOptionalPropertyInject');
+    $injector->createInstance('Pulp\Test\TestMissingOptionalPropertyInject');
   }
 
   public function testAssistedParameter() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
     $param = 'test';
-    $object = $injector->createInstance('Octahedron\Pulp\Test\TestAssistedParamInject', ['assisted' => $param]);
+    $object = $injector->createInstance('Pulp\Test\TestAssistedParamInject', ['assisted' => $param]);
     $this->assertSame($param, $object->assisted);
   }
 
   public function testSoleAssistedParameter() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
     $param = 'test';
-    $object = $injector->createInstance('Octahedron\Pulp\Test\TestSoleAssistedParamInject', ['assisted' => $param]);
+    $object = $injector->createInstance('Pulp\Test\TestSoleAssistedParamInject', ['assisted' => $param]);
     $this->assertSame($param, $object->assisted);
   }
 
   /**
-   * @expectedException Octahedron\Pulp\Binding\BindingException
+   * @expectedException Pulp\Binding\BindingException
    * @expectedExceptionMessage Missing assisted parameter "assisted"
    */
   public function testErrorOnMissingAssistedParameter() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Octahedron\Pulp\Test\TestAssistedParamInject');
+    $injector->createInstance('Pulp\Test\TestAssistedParamInject');
   }
 
   public function testAssistedParameterDefault() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Octahedron\Pulp\Test\TestAssistedParamDefaultInject');
+    $object = $injector->createInstance('Pulp\Test\TestAssistedParamDefaultInject');
     $this->assertSame('test', $object->assisted);
   }
 
   public function testMultipleAssistedParameterDefaults() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
     $param = 'two';
-    $object = $injector->createInstance('Octahedron\Pulp\Test\TestMultipleAssistedParamDefaultInject', ['assistedTwo' => $param]);
+    $object = $injector->createInstance('Pulp\Test\TestMultipleAssistedParamDefaultInject', ['assistedTwo' => $param]);
     $this->assertSame('test', $object->assisted);
     $this->assertSame($param, $object->assistedTwo);
   }

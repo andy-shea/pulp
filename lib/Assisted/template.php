@@ -3,7 +3,7 @@ class <?php echo $this->factoryClass ?> implements <?php echo $this->factoryInte
 
   private $injector;
 
-  public function __construct(Octahedron\Pulp\Injector $injector) {
+  public function __construct(Pulp\Injector $injector) {
     $this->injector = $injector;
   }
 

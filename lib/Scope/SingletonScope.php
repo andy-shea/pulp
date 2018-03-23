@@ -3,22 +3,22 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Scope;
+namespace Pulp\Scope;
 
-use Octahedron\Pulp\Binding\Binding;
-use Octahedron\Pulp\Injector;
+use Pulp\Binding\Binding;
+use Pulp\Injector;
 
 /**
  * Defines the scope for the dependency to be a singleton where the same
  * instance will be injected each time this dependency is required.
  *
- * @author Andy Shea <andrew@octahedron.com.au>
+ * @author Andy Shea <aa.shea@gmail.com>
  */
 class SingletonScope implements Scope {
 

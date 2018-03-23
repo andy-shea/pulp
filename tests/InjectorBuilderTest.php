@@ -3,21 +3,21 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Test;
+namespace Pulp\Test;
 
-use Octahedron\Pulp\InjectorBuilder;
+use Pulp\InjectorBuilder;
 use Doctrine\Common\Annotations\AnnotationReader;
 
 class InjectorBuilderTest extends \PHPUnit_Framework_TestCase {
 
   public function testBuildInstallsModule() {
-    $moduleMock = $this->getMockBuilder('Octahedron\Pulp\Module')
+    $moduleMock = $this->getMockBuilder('Pulp\Module')
         ->setMethods(['setBinder', 'configure'])
         ->getMock();
     $moduleMock->expects($this->once())->method('setBinder');
@@ -25,7 +25,7 @@ class InjectorBuilderTest extends \PHPUnit_Framework_TestCase {
 
     $injectorBuilder = new InjectorBuilder(new AnnotationReader());
     $injectorBuilder->addModules([$moduleMock]);
-    $this->assertInstanceOf('Octahedron\Pulp\Injector', $injectorBuilder->build());
+    $this->assertInstanceOf('Pulp\Injector', $injectorBuilder->build());
   }
 
 }

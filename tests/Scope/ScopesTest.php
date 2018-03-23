@@ -3,24 +3,24 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Test\Scope;
+namespace Pulp\Test\Scope;
 
-use Octahedron\Pulp\Scope\Scopes;
+use Pulp\Scope\Scopes;
 
 class ScopesMethodTest extends \PHPUnit_Framework_TestCase {
 
   public function testInstanceScope() {
-    $this->assertInstanceOf('Octahedron\Pulp\Scope\InstanceScope', Scopes::instance());
+    $this->assertInstanceOf('Pulp\Scope\InstanceScope', Scopes::instance());
   }
 
   public function testSingletonScope() {
-    $this->assertInstanceOf('Octahedron\Pulp\Scope\SingletonScope', Scopes::singleton());
+    $this->assertInstanceOf('Pulp\Scope\SingletonScope', Scopes::singleton());
   }
 
   public function testScopeIsSingleton() {

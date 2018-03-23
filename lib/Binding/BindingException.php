@@ -3,17 +3,17 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Binding;
+namespace Pulp\Binding;
 
 /**
  * Exception that is thrown on incorrectly defined dependency bindings.
  *
- * @author Andy Shea <andrew@octahedron.com.au>
+ * @author Andy Shea <aa.shea@gmail.com>
  */
 class BindingException extends \Exception {}

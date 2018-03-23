@@ -3,16 +3,16 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Test\Assisted;
+namespace Pulp\Test\Assisted;
 
-use Octahedron\Pulp\Assisted\FactoryProvider;
-use Octahedron\Pulp\Meta\Annotation\Returns;
+use Pulp\Assisted\FactoryProvider;
+use Pulp\Meta\Annotation\Returns;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\AnnotationReader;
 use org\bovigo\vfs\vfsStream;
@@ -24,7 +24,7 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
   protected function setUp() {
     $this->root = vfsStream::setup('factoryprovider');
     AnnotationRegistry::registerLoader(function($class) {
-      $file = __DIR__ . '/../../lib/' . str_replace('\\', '/', substr($class, strlen('Octahedron\\Pulp\\'))) . '.php';
+      $file = __DIR__ . '/../../lib/' . str_replace('\\', '/', substr($class, strlen('Pulp\\'))) . '.php';
       if (file_exists($file)) return !!include $file;
     });
     FactoryProvider::setCacheDir(vfsStream::url('factoryprovider') . '\cache');
@@ -35,21 +35,21 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testFactoryOnlyCreatedOnce() {
-    $injectorMock = $this->getMockBuilder('Octahedron\Pulp\Injector')
+    $injectorMock = $this->getMockBuilder('Pulp\Injector')
         ->disableOriginalConstructor()
         ->getMock();
 
-    $factoryProvider = new FactoryProvider('Octahedron\Pulp\Test\Assisted\TestFactory');
+    $factoryProvider = new FactoryProvider('Pulp\Test\Assisted\TestFactory');
     $factoryProvider->setAnnotationReader(new AnnotationReader());
     $factoryProvider->initialise($injectorMock);
     $factoryProvider->get();
-    $mtime = $this->root->getChild('cache/Octahedron_Pulp_Test_Assisted_TestFactoryImpl.php')->filemtime();
+    $mtime = $this->root->getChild('cache/Pulp_Test_Assisted_TestFactoryImpl.php')->filemtime();
     $factoryProvider->get();
-    $this->assertEquals($mtime, $this->root->getChild('cache/Octahedron_Pulp_Test_Assisted_TestFactoryImpl.php')->filemtime());
+    $this->assertEquals($mtime, $this->root->getChild('cache/Pulp_Test_Assisted_TestFactoryImpl.php')->filemtime());
   }
 
   public function testFactoryCreateMethod() {
-    $injectorMock = $this->getMockBuilder('Octahedron\Pulp\Injector')
+    $injectorMock = $this->getMockBuilder('Pulp\Injector')
         ->disableOriginalConstructor()
         ->setMethods(['getInstance'])
         ->getMock();
@@ -57,7 +57,7 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
            ->method('getInstance')
            ->with($this->equalTo('TestInterface'));
 
-    $factoryProvider = new FactoryProvider('Octahedron\Pulp\Test\Assisted\TestFactory');
+    $factoryProvider = new FactoryProvider('Pulp\Test\Assisted\TestFactory');
     $factoryProvider->setAnnotationReader(new AnnotationReader());
     $factoryProvider->initialise($injectorMock);
     $factory = $factoryProvider->get();
@@ -66,11 +66,11 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testFactoryCreateMethodWithAssistedParam() {
-    $injectorMock = $this->getMockBuilder('Octahedron\Pulp\Injector')
+    $injectorMock = $this->getMockBuilder('Pulp\Injector')
         ->disableOriginalConstructor()
         ->getMock();
 
-    $factoryProvider = new FactoryProvider('Octahedron\Pulp\Test\Assisted\TestFactoryWithAssistedParam');
+    $factoryProvider = new FactoryProvider('Pulp\Test\Assisted\TestFactoryWithAssistedParam');
     $factoryProvider->setAnnotationReader(new AnnotationReader());
     $factoryProvider->initialise($injectorMock);
     $factory = $factoryProvider->get();
@@ -80,7 +80,7 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
     $this->assertEquals(3, $reflectedMethod->getNumberOfParameters());
     $reflectedParameters = $reflectedMethod->getParameters();
     $this->assertEquals('param', $reflectedParameters[0]->getName());
-    $this->assertEquals('Octahedron\Pulp\Test\Assisted\Assisted', $reflectedParameters[0]->getClass()->getName());
+    $this->assertEquals('Pulp\Test\Assisted\Assisted', $reflectedParameters[0]->getClass()->getName());
     $this->assertEquals('second', $reflectedParameters[1]->getName());
     $this->assertFalse($reflectedParameters[1]->isDefaultValueAvailable());
     $this->assertEquals('optional', $reflectedParameters[2]->getName());
@@ -88,15 +88,15 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
   }
 
   /**
-   * @expectedException Octahedron\Pulp\Assisted\AssistedInjectException
+   * @expectedException Pulp\Assisted\AssistedInjectException
    * @expectedExceptionMessage Missing @Returns annotation in factory interface
    */
   public function testFactoryWithoutReturnsMethod() {
-    $injectorMock = $this->getMockBuilder('Octahedron\Pulp\Injector')
+    $injectorMock = $this->getMockBuilder('Pulp\Injector')
         ->disableOriginalConstructor()
         ->getMock();
 
-    $factoryProvider = new FactoryProvider('Octahedron\Pulp\Test\Assisted\InvalidFactory');
+    $factoryProvider = new FactoryProvider('Pulp\Test\Assisted\InvalidFactory');
     $factoryProvider->setAnnotationReader(new AnnotationReader());
     $factoryProvider->initialise($injectorMock);
     $factory = $factoryProvider->get();

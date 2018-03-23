@@ -5,7 +5,7 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true">
   <testsuites>
-    <testsuite name="Octahedron Pulp Test Suite">
+    <testsuite name="Pulp Test Suite">
       <directory>tests</directory>
     </testsuite>
   </testsuites>

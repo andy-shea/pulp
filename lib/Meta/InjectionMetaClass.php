@@ -3,24 +3,24 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Meta;
+namespace Pulp\Meta;
 
-use Octahedron\Pulp\Meta\Annotation\Inject;
-use Octahedron\Pulp\Meta\Annotation\Named;
-use Octahedron\Pulp\Meta\Annotation\Provides;
-use Octahedron\Pulp\Meta\Annotation\Assisted;
+use Pulp\Meta\Annotation\Inject;
+use Pulp\Meta\Annotation\Named;
+use Pulp\Meta\Annotation\Provides;
+use Pulp\Meta\Annotation\Assisted;
 use Doctrine\Common\Annotations\Reader;
 
 /**
  * Collects meta-information for the class to determine injectable dependencies.
  *
- * @author Andy Shea <andrew@octahedron.com.au>
+ * @author Andy Shea <aa.shea@gmail.com>
  */
 class InjectionMetaClass {
 

@@ -3,22 +3,22 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Scope;
+namespace Pulp\Scope;
 
-use Octahedron\Pulp\Binding\Binding;
-use Octahedron\Pulp\Injector;
+use Pulp\Binding\Binding;
+use Pulp\Injector;
 
 /**
  * An interface for a scope which defines the life of a dependency.  Custom
  * defined scopes will need to implement this interface.
  *
- * @author Andy Shea <andrew@octahedron.com.au>
+ * @author Andy Shea <aa.shea@gmail.com>
  */
 interface Scope {
 

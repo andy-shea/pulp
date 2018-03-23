@@ -3,22 +3,22 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Scope;
+namespace Pulp\Scope;
 
-use Octahedron\Pulp\Binding\Binding;
-use Octahedron\Pulp\Injector;
+use Pulp\Binding\Binding;
+use Pulp\Injector;
 
 /**
  * Defines the scope for the dependency to be per instance where each dependency
  * of this type will be injected with a new instance. This is the default scope.
  *
- * @author Andy Shea <andrew@octahedron.com.au>
+ * @author Andy Shea <aa.shea@gmail.com>
  */
 class InstanceScope implements Scope {
 

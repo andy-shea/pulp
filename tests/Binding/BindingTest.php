@@ -3,21 +3,21 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Test\Binding;
+namespace Pulp\Test\Binding;
 
-use Octahedron\Pulp\Binding\Binding;
-use Octahedron\Pulp\Injector;
+use Pulp\Binding\Binding;
+use Pulp\Injector;
 
 class BindingTest extends \PHPUnit_Framework_TestCase {
 
   /**
-   * @expectedException Octahedron\Pulp\Binding\BindingException
+   * @expectedException Pulp\Binding\BindingException
    * @expectedExceptionMessage Cannot bind an interface to itself
    */
   public function testCannotBindInterfaceToItself() {
@@ -26,7 +26,7 @@ class BindingTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testCreateImplementationDependency() {
-    $injectorMock = $this->getMockBuilder('Octahedron\Pulp\Injector')
+    $injectorMock = $this->getMockBuilder('Pulp\Injector')
         ->disableOriginalConstructor()
         ->setMethods(['getInstance'])
         ->getMock();
@@ -40,7 +40,7 @@ class BindingTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testCreateCallableProviderDependency() {
-    $injectorMock = $this->getMockBuilder('Octahedron\Pulp\Injector')
+    $injectorMock = $this->getMockBuilder('Pulp\Injector')
         ->disableOriginalConstructor()
         ->getMock();
 
@@ -60,7 +60,7 @@ class BindingTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testCreateInstanceDependency() {
-    $injectorMock = $this->getMockBuilder('Octahedron\Pulp\Injector')
+    $injectorMock = $this->getMockBuilder('Pulp\Injector')
         ->disableOriginalConstructor()
         ->getMock();
 
@@ -71,7 +71,7 @@ class BindingTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testCreateInterfaceDependency() {
-    $injectorMock = $this->getMockBuilder('Octahedron\Pulp\Injector')
+    $injectorMock = $this->getMockBuilder('Pulp\Injector')
         ->disableOriginalConstructor()
         ->setMethods(['createInstance'])
         ->getMock();

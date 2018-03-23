@@ -1,5 +1,5 @@
 # Pulp
-**Latest release: [1.1.0](https://github.com/andy-shea/pulp/releases/latest)**<br/>
+**Latest release: [1.1.1](https://github.com/andy-shea/pulp/releases/latest)**<br/>
 **Continuous Integration:** [![Build Status](https://travis-ci.org/andy-shea/pulp.svg?branch=master)](https://travis-ci.org/andy-shea/pulp)<br/>
 **Requirements:** PHP 5.5+
 

@@ -3,20 +3,20 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
  
-namespace Octahedron\Pulp\Test\Scope;
+namespace Pulp\Test\Scope;
 
-use Octahedron\Pulp\Scope\SingletonScope;
+use Pulp\Scope\SingletonScope;
 
 class SingletonScopeTest extends \PHPUnit_Framework_TestCase {
 
   public function testGetDependencyReturnsSingleton() {
-    $bindingMock = $this->getMockBuilder('Octahedron\Pulp\Binding\Binding')
+    $bindingMock = $this->getMockBuilder('Pulp\Binding\Binding')
         ->disableOriginalConstructor()
         ->setMethods(['createDependency'])
         ->getMock();
@@ -24,7 +24,7 @@ class SingletonScopeTest extends \PHPUnit_Framework_TestCase {
        ->method('createDependency')
        ->will($this->returnValue($bindingMock));
 
-    $injectorMock = $this->getMockBuilder('Octahedron\Pulp\Injector')
+    $injectorMock = $this->getMockBuilder('Pulp\Injector')
         ->disableOriginalConstructor()
         ->getMock();
 

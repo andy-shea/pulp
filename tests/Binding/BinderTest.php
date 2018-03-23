@@ -3,20 +3,20 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Test\Binding;
+namespace Pulp\Test\Binding;
 
-use Octahedron\Pulp\Binding\Binder;
-use Octahedron\Pulp\Module;
-use Octahedron\Pulp\AbstractModule;
-use Octahedron\Pulp\Meta\Annotation\Provides;
-use Octahedron\Pulp\Meta\Annotation\Singleton;
-use Octahedron\Pulp\Scope\Scopes;
+use Pulp\Binding\Binder;
+use Pulp\Module;
+use Pulp\AbstractModule;
+use Pulp\Meta\Annotation\Provides;
+use Pulp\Meta\Annotation\Singleton;
+use Pulp\Scope\Scopes;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\AnnotationReader;
 
@@ -24,18 +24,18 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
 
   public function setup() {
     AnnotationRegistry::registerLoader(function($class) {
-      $file = __DIR__ . '/../../lib/' . str_replace('\\', '/', substr($class, strlen('Octahedron\\Pulp\\'))) . '.php';
+      $file = __DIR__ . '/../../lib/' . str_replace('\\', '/', substr($class, strlen('Pulp\\'))) . '.php';
       if (file_exists($file)) return !!include $file;
     });
   }
 
   public function testBindReturnsBindingObject() {
     $binder = new Binder(new AnnotationReader());
-    $this->assertInstanceOf('Octahedron\Pulp\Binding\Binding', $binder->bind('TestInterface'));
+    $this->assertInstanceOf('Pulp\Binding\Binding', $binder->bind('TestInterface'));
   }
 
   public function testModuleInstall() {
-    $moduleMock = $this->getMockBuilder('Octahedron\Pulp\Module')
+    $moduleMock = $this->getMockBuilder('Pulp\Module')
         ->disableOriginalConstructor()
         ->setMethods(['setBinder', 'configure'])
         ->getMock();
@@ -47,7 +47,7 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testSameModuleInstallsOnlyOnce() {
-    $moduleMock = $this->getMockBuilder('Octahedron\Pulp\Module')
+    $moduleMock = $this->getMockBuilder('Pulp\Module')
         ->setMethods(['setBinder', 'configure'])
         ->getMock();
     $binder = new Binder(new AnnotationReader());
@@ -65,15 +65,15 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testBindsModuleProviderMethod() {
-    $bindingMock = $this->getMockBuilder('Octahedron\Pulp\Binding\Binding')
+    $bindingMock = $this->getMockBuilder('Pulp\Binding\Binding')
         ->disableOriginalConstructor()
         ->setMethods(['toProvider'])
         ->getMock();
     $bindingMock->expects($this->once())
        ->method('toProvider')
-       ->with($this->isInstanceOf('Octahedron\Pulp\Provider\ProviderMethod'));
+       ->with($this->isInstanceOf('Pulp\Provider\ProviderMethod'));
 
-    $binderStub = $this->getMockBuilder('Octahedron\Pulp\Binding\Binder')
+    $binderStub = $this->getMockBuilder('Pulp\Binding\Binder')
         ->setConstructorArgs([new AnnotationReader()])
         ->setMethods(['bind'])
         ->getMock();
@@ -85,19 +85,19 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testBindsModuleSingletonProviderMethod() {
-    $bindingMock = $this->getMockBuilder('Octahedron\Pulp\Binding\Binding')
+    $bindingMock = $this->getMockBuilder('Pulp\Binding\Binding')
         ->disableOriginalConstructor()
         ->setMethods(['toProvider', 'in'])
         ->getMock();
     $bindingMock->expects($this->once())
        ->method('toProvider')
-       ->with($this->isInstanceOf('Octahedron\Pulp\Provider\ProviderMethod'))
+       ->with($this->isInstanceOf('Pulp\Provider\ProviderMethod'))
        ->will($this->returnValue($bindingMock));
     $bindingMock->expects($this->once())
          ->method('in')
          ->with($this->identicalTo(Scopes::singleton()));
 
-    $binderStub = $this->getMockBuilder('Octahedron\Pulp\Binding\Binder')
+    $binderStub = $this->getMockBuilder('Pulp\Binding\Binder')
         ->setConstructorArgs([new AnnotationReader()])
         ->setMethods(['bind'])
         ->getMock();
@@ -111,7 +111,7 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
   public function testFactoryProviderInstall() {
     $annotationReaderMock = $this->getMock('Doctrine\Common\Annotations\Reader');
 
-    $factoryProviderMock = $this->getMockBuilder('Octahedron\Pulp\Assisted\FactoryProvider')
+    $factoryProviderMock = $this->getMockBuilder('Pulp\Assisted\FactoryProvider')
         ->disableOriginalConstructor()
         ->setMethods(['setAnnotationReader'])
         ->getMock();

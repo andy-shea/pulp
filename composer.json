@@ -20,12 +20,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Octahedron\\Pulp\\": "lib"
+      "Pulp\\": "lib"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Octahedron\\Pulp\\Test\\": "test"
+      "Pulp\\Test\\": "test"
     }
   }
 }

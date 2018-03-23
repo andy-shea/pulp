@@ -3,22 +3,22 @@
 /*
  * This file is part of the Pulp package.
  *
- * (c) Octahedron Pty Ltd <andrew@octahedron.com.au>
+ * (c) Andy Shea <aa.shea@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-namespace Octahedron\Pulp\Provider;
+namespace Pulp\Provider;
 
-use Octahedron\Pulp\Module;
+use Pulp\Module;
 
 /**
  * An implementation of a `Provider` used by Pulp to automatically inject a
  * provider which will return a dependency created by a provider method defined
  * in a `Module`.
  *
- * @author Andy Shea <andrew@octahedron.com.au>
+ * @author Andy Shea <aa.shea@gmail.com>
  * @todo this will need to be able to support provider methods with parameters
  */
 class ProviderMethod implements Provider {
