@@ -13,15 +13,18 @@ namespace Pulp\Test\Assisted;
 
 use Pulp\Assisted\FactoryProvider;
 use Pulp\Meta\Annotation\Returns;
+use Pulp\Injector;
+use Pulp\Assisted\AssistedInjectException;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\AnnotationReader;
 use org\bovigo\vfs\vfsStream;
+use PHPUnit\Framework\TestCase;
 
-class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
+class FactoryProviderTest extends TestCase {
 
   protected $root;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->root = vfsStream::setup('factoryprovider');
     AnnotationRegistry::registerLoader(function($class) {
       $file = __DIR__ . '/../../lib/' . str_replace('\\', '/', substr($class, strlen('Pulp\\'))) . '.php';
@@ -35,11 +38,11 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testFactoryOnlyCreatedOnce() {
-    $injectorMock = $this->getMockBuilder('Pulp\Injector')
+    $injectorMock = $this->getMockBuilder(Injector::class)
         ->disableOriginalConstructor()
         ->getMock();
 
-    $factoryProvider = new FactoryProvider('Pulp\Test\Assisted\TestFactory');
+    $factoryProvider = new FactoryProvider(TestFactory::class);
     $factoryProvider->setAnnotationReader(new AnnotationReader());
     $factoryProvider->initialise($injectorMock);
     $factoryProvider->get();
@@ -49,7 +52,7 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testFactoryCreateMethod() {
-    $injectorMock = $this->getMockBuilder('Pulp\Injector')
+    $injectorMock = $this->getMockBuilder(Injector::class)
         ->disableOriginalConstructor()
         ->setMethods(['getInstance'])
         ->getMock();
@@ -57,7 +60,7 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
            ->method('getInstance')
            ->with($this->equalTo('TestInterface'));
 
-    $factoryProvider = new FactoryProvider('Pulp\Test\Assisted\TestFactory');
+    $factoryProvider = new FactoryProvider(TestFactory::class);
     $factoryProvider->setAnnotationReader(new AnnotationReader());
     $factoryProvider->initialise($injectorMock);
     $factory = $factoryProvider->get();
@@ -66,11 +69,11 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testFactoryCreateMethodWithAssistedParam() {
-    $injectorMock = $this->getMockBuilder('Pulp\Injector')
+    $injectorMock = $this->getMockBuilder(Injector::class)
         ->disableOriginalConstructor()
         ->getMock();
 
-    $factoryProvider = new FactoryProvider('Pulp\Test\Assisted\TestFactoryWithAssistedParam');
+    $factoryProvider = new FactoryProvider(TestFactoryWithAssistedParam::class);
     $factoryProvider->setAnnotationReader(new AnnotationReader());
     $factoryProvider->initialise($injectorMock);
     $factory = $factoryProvider->get();
@@ -87,18 +90,15 @@ class FactoryProviderTest extends \PHPUnit_Framework_TestCase {
     $this->assertTrue($reflectedParameters[2]->isDefaultValueAvailable());
   }
 
-  /**
-   * @expectedException Pulp\Assisted\AssistedInjectException
-   * @expectedExceptionMessage Missing @Returns annotation in factory interface
-   */
   public function testFactoryWithoutReturnsMethod() {
-    $injectorMock = $this->getMockBuilder('Pulp\Injector')
+    $injectorMock = $this->getMockBuilder(Injector::class)
         ->disableOriginalConstructor()
         ->getMock();
 
-    $factoryProvider = new FactoryProvider('Pulp\Test\Assisted\InvalidFactory');
+    $factoryProvider = new FactoryProvider(InvalidFactory::class);
     $factoryProvider->setAnnotationReader(new AnnotationReader());
     $factoryProvider->initialise($injectorMock);
+    $this->expectException(AssistedInjectException::class, 'Missing @Returns annotation in factory interface');
     $factory = $factoryProvider->get();
   }
 

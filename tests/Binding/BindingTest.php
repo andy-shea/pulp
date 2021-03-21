@@ -13,20 +13,19 @@ namespace Pulp\Test\Binding;
 
 use Pulp\Binding\Binding;
 use Pulp\Injector;
+use Pulp\Binding\BindingException;
+use PHPUnit\Framework\TestCase;
 
-class BindingTest extends \PHPUnit_Framework_TestCase {
+class BindingTest extends TestCase {
 
-  /**
-   * @expectedException Pulp\Binding\BindingException
-   * @expectedExceptionMessage Cannot bind an interface to itself
-   */
   public function testCannotBindInterfaceToItself() {
     $binding = new Binding('TestInterface');
+    $this->expectException(BindingException::class, 'Cannot bind an interface to itself');
     $binding->to('TestInterface');
   }
 
   public function testCreateImplementationDependency() {
-    $injectorMock = $this->getMockBuilder('Pulp\Injector')
+    $injectorMock = $this->getMockBuilder(Injector::class)
         ->disableOriginalConstructor()
         ->setMethods(['getInstance'])
         ->getMock();
@@ -40,7 +39,7 @@ class BindingTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testCreateCallableProviderDependency() {
-    $injectorMock = $this->getMockBuilder('Pulp\Injector')
+    $injectorMock = $this->getMockBuilder(Injector::class)
         ->disableOriginalConstructor()
         ->getMock();
 
@@ -60,7 +59,7 @@ class BindingTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testCreateInstanceDependency() {
-    $injectorMock = $this->getMockBuilder('Pulp\Injector')
+    $injectorMock = $this->getMockBuilder(Injector::class)
         ->disableOriginalConstructor()
         ->getMock();
 
@@ -71,7 +70,7 @@ class BindingTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testCreateInterfaceDependency() {
-    $injectorMock = $this->getMockBuilder('Pulp\Injector')
+    $injectorMock = $this->getMockBuilder(Injector::class)
         ->disableOriginalConstructor()
         ->setMethods(['createInstance'])
         ->getMock();

@@ -17,12 +17,17 @@ use Pulp\AbstractModule;
 use Pulp\Meta\Annotation\Provides;
 use Pulp\Meta\Annotation\Singleton;
 use Pulp\Scope\Scopes;
+use Pulp\Binding\Binding;
+use Pulp\Provider\ProviderMethod;
+use Pulp\Assisted\FactoryProvider;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\Reader;
+use PHPUnit\Framework\TestCase;
 
-class BinderTest extends \PHPUnit_Framework_TestCase {
+class BinderTest extends TestCase {
 
-  public function setup() {
+  public function setup(): void {
     AnnotationRegistry::registerLoader(function($class) {
       $file = __DIR__ . '/../../lib/' . str_replace('\\', '/', substr($class, strlen('Pulp\\'))) . '.php';
       if (file_exists($file)) return !!include $file;
@@ -31,11 +36,11 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
 
   public function testBindReturnsBindingObject() {
     $binder = new Binder(new AnnotationReader());
-    $this->assertInstanceOf('Pulp\Binding\Binding', $binder->bind('TestInterface'));
+    $this->assertInstanceOf(Binding::class, $binder->bind('TestInterface'));
   }
 
   public function testModuleInstall() {
-    $moduleMock = $this->getMockBuilder('Pulp\Module')
+    $moduleMock = $this->getMockBuilder(Module::class)
         ->disableOriginalConstructor()
         ->setMethods(['setBinder', 'configure'])
         ->getMock();
@@ -47,7 +52,7 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testSameModuleInstallsOnlyOnce() {
-    $moduleMock = $this->getMockBuilder('Pulp\Module')
+    $moduleMock = $this->getMockBuilder(Module::class)
         ->setMethods(['setBinder', 'configure'])
         ->getMock();
     $binder = new Binder(new AnnotationReader());
@@ -65,15 +70,15 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testBindsModuleProviderMethod() {
-    $bindingMock = $this->getMockBuilder('Pulp\Binding\Binding')
+    $bindingMock = $this->getMockBuilder(Binding::class)
         ->disableOriginalConstructor()
         ->setMethods(['toProvider'])
         ->getMock();
     $bindingMock->expects($this->once())
        ->method('toProvider')
-       ->with($this->isInstanceOf('Pulp\Provider\ProviderMethod'));
+       ->with($this->isInstanceOf(ProviderMethod::class));
 
-    $binderStub = $this->getMockBuilder('Pulp\Binding\Binder')
+    $binderStub = $this->getMockBuilder(Binder::class)
         ->setConstructorArgs([new AnnotationReader()])
         ->setMethods(['bind'])
         ->getMock();
@@ -85,19 +90,19 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testBindsModuleSingletonProviderMethod() {
-    $bindingMock = $this->getMockBuilder('Pulp\Binding\Binding')
+    $bindingMock = $this->getMockBuilder(Binding::class)
         ->disableOriginalConstructor()
         ->setMethods(['toProvider', 'in'])
         ->getMock();
     $bindingMock->expects($this->once())
        ->method('toProvider')
-       ->with($this->isInstanceOf('Pulp\Provider\ProviderMethod'))
+       ->with($this->isInstanceOf(ProviderMethod::class))
        ->will($this->returnValue($bindingMock));
     $bindingMock->expects($this->once())
          ->method('in')
          ->with($this->identicalTo(Scopes::singleton()));
 
-    $binderStub = $this->getMockBuilder('Pulp\Binding\Binder')
+    $binderStub = $this->getMockBuilder(Binder::class)
         ->setConstructorArgs([new AnnotationReader()])
         ->setMethods(['bind'])
         ->getMock();
@@ -109,9 +114,9 @@ class BinderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testFactoryProviderInstall() {
-    $annotationReaderMock = $this->getMock('Doctrine\Common\Annotations\Reader');
+    $annotationReaderMock = $this->createMock(Reader::class);
 
-    $factoryProviderMock = $this->getMockBuilder('Pulp\Assisted\FactoryProvider')
+    $factoryProviderMock = $this->getMockBuilder(FactoryProvider::class)
         ->disableOriginalConstructor()
         ->setMethods(['setAnnotationReader'])
         ->getMock();

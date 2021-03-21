@@ -11,12 +11,15 @@
  
 namespace Pulp\Test\Scope;
 
+use Pulp\Injector;
+use Pulp\Binding\Binding;
 use Pulp\Scope\SingletonScope;
+use PHPUnit\Framework\TestCase;
 
-class SingletonScopeTest extends \PHPUnit_Framework_TestCase {
+class SingletonScopeTest extends TestCase {
 
   public function testGetDependencyReturnsSingleton() {
-    $bindingMock = $this->getMockBuilder('Pulp\Binding\Binding')
+    $bindingMock = $this->getMockBuilder(Binding::class)
         ->disableOriginalConstructor()
         ->setMethods(['createDependency'])
         ->getMock();
@@ -24,7 +27,7 @@ class SingletonScopeTest extends \PHPUnit_Framework_TestCase {
        ->method('createDependency')
        ->will($this->returnValue($bindingMock));
 
-    $injectorMock = $this->getMockBuilder('Pulp\Injector')
+    $injectorMock = $this->getMockBuilder(Injector::class)
         ->disableOriginalConstructor()
         ->getMock();
 

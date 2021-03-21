@@ -11,13 +11,16 @@
 
 namespace Pulp\Test;
 
+use Pulp\Injector;
 use Pulp\InjectorBuilder;
+use Pulp\Module;
 use Doctrine\Common\Annotations\AnnotationReader;
+use PHPUnit\Framework\TestCase;
 
-class InjectorBuilderTest extends \PHPUnit_Framework_TestCase {
+class InjectorBuilderTest extends TestCase {
 
   public function testBuildInstallsModule() {
-    $moduleMock = $this->getMockBuilder('Pulp\Module')
+    $moduleMock = $this->getMockBuilder(Module::class)
         ->setMethods(['setBinder', 'configure'])
         ->getMock();
     $moduleMock->expects($this->once())->method('setBinder');
@@ -25,7 +28,7 @@ class InjectorBuilderTest extends \PHPUnit_Framework_TestCase {
 
     $injectorBuilder = new InjectorBuilder(new AnnotationReader());
     $injectorBuilder->addModules([$moduleMock]);
-    $this->assertInstanceOf('Pulp\Injector', $injectorBuilder->build());
+    $this->assertInstanceOf(Injector::class, $injectorBuilder->build());
   }
 
 }

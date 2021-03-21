@@ -12,15 +12,18 @@
 namespace Pulp\Test\Scope;
 
 use Pulp\Scope\Scopes;
+use Pulp\Scope\InstanceScope;
+use Pulp\Scope\SingletonScope;
+use PHPUnit\Framework\TestCase;
 
-class ScopesMethodTest extends \PHPUnit_Framework_TestCase {
+class ScopesMethodTest extends TestCase {
 
   public function testInstanceScope() {
-    $this->assertInstanceOf('Pulp\Scope\InstanceScope', Scopes::instance());
+    $this->assertInstanceOf(InstanceScope::class, Scopes::instance());
   }
 
   public function testSingletonScope() {
-    $this->assertInstanceOf('Pulp\Scope\SingletonScope', Scopes::singleton());
+    $this->assertInstanceOf(SingletonScope::class, Scopes::singleton());
   }
 
   public function testScopeIsSingleton() {
@@ -29,11 +32,8 @@ class ScopesMethodTest extends \PHPUnit_Framework_TestCase {
     $this->assertSame($scope, $otherScope);
   }
 
-  /**
-   * @expectedException InvalidArgumentException
-   * @expectedExceptionMessage Invalid scope specified
-   */
   public function testInvalidScope() {
+    $this->expectException(\InvalidArgumentException::class, 'Invalid scope specified');
     Scopes::invalidScope();
   }
 

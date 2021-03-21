@@ -11,12 +11,14 @@
  
 namespace Pulp\Test\Provider;
 
+use Pulp\Module;
 use Pulp\Provider\ProviderMethod;
+use PHPUnit\Framework\TestCase;
 
-class ProviderMethodTest extends \PHPUnit_Framework_TestCase {
+class ProviderMethodTest extends TestCase {
 
   public function testGet() {
-    $moduleMock = $this->getMockBuilder('Pulp\Module')
+    $moduleMock = $this->getMockBuilder(Module::class)
         ->disableOriginalConstructor()
         ->setMethods(['configure', 'testProvider'])
         ->getMock();

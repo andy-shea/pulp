@@ -14,64 +14,64 @@ namespace Pulp\Test;
 use Pulp\Injector;
 use Pulp\Meta\Annotation\Inject;
 use Pulp\Meta\Annotation\Assisted;
+use Pulp\Binding\Binder;
+use Pulp\Binding\BindingException;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\AnnotationReader;
+use PHPUnit\Framework\TestCase;
 
-class InjectorTest extends \PHPUnit_Framework_TestCase {
+class InjectorTest extends TestCase {
 
   protected $annotationReader;
   protected $binderMock;
 
-  public function setup() {
+  public function setup(): void {
     AnnotationRegistry::registerLoader(function($class) {
       $file = __DIR__ . '/../lib/' . str_replace('\\', '/', substr($class, strlen('Pulp\\'))) . '.php';
       if (file_exists($file)) return !!include $file;
     });
     $this->annotationReader = new AnnotationReader();
-    $this->binderMock = $this->getMockBuilder('Pulp\Binding\Binder')->setConstructorArgs([$this->annotationReader])->getMock();
+    $this->binderMock = $this->getMockBuilder(Binder::class)->setConstructorArgs([$this->annotationReader])->getMock();
   }
 
   public function testConstructorInject() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Pulp\Test\TestConstructorInject');
-    $this->assertInstanceOf('Pulp\Test\TestConstructorInject', $object);
-    $this->assertInstanceOf('Pulp\Test\Test', $object->test);
+    $object = $injector->createInstance(TestConstructorInject::class);
+    $this->assertInstanceOf(TestConstructorInject::class, $object);
+    $this->assertInstanceOf(Test::class, $object->test);
   }
 
   public function testPropertyInject() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Pulp\Test\TestPropertyInject');
-    $this->assertInstanceOf('Pulp\Test\TestPropertyInject', $object);
-    $this->assertInstanceOf('Pulp\Test\Test', $object->test);
+    $object = $injector->createInstance(TestPropertyInject::class);
+    $this->assertInstanceOf(TestPropertyInject::class, $object);
+    $this->assertInstanceOf(Test::class, $object->test);
   }
 
   public function testSetterInject() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Pulp\Test\TestSetterInject');
-    $this->assertInstanceOf('Pulp\Test\TestSetterInject', $object);
-    $this->assertInstanceOf('Pulp\Test\Test', $object->test);
+    $object = $injector->createInstance(TestSetterInject::class);
+    $this->assertInstanceOf(TestSetterInject::class, $object);
+    $this->assertInstanceOf(Test::class, $object->test);
   }
 
   public function testAllInjectTargets() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Pulp\Test\TestAllInjectTargets');
-    $this->assertInstanceOf('Pulp\Test\TestAllInjectTargets', $object);
-    $this->assertInstanceOf('Pulp\Test\Test', $object->test);
+    $object = $injector->createInstance(TestAllInjectTargets::class);
+    $this->assertInstanceOf(TestAllInjectTargets::class, $object);
+    $this->assertInstanceOf(Test::class, $object->test);
     $this->assertInstanceOf('Pulp\Test\Two', $object->two);
     $this->assertInstanceOf('Pulp\Test\Three', $object->three);
   }
 
   public function testInjectorReturnsItselfWhenGettingInjectorInstance() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $this->assertSame($injector, $injector->getInstance('Pulp\Injector'));
+    $this->assertSame($injector, $injector->getInstance(Injector::class));
   }
 
-  /**
-   * @expectedException Exception
-   * @expectedExceptionMessage No binding found for interface "MissingClass"
-   */
   public function testErrorIfNonOptionalClassMissing() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
+    $this->expectException(\Exception::class, 'No binding found for interface "MissingClass"');
     $injector->createInstance('MissingClass');
   }
 
@@ -81,71 +81,65 @@ class InjectorTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testNoErrorIfOptionalConstructorParameterClassMissing() {
+    $this->expectNotToPerformAssertions();
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Pulp\Test\TestMissingOptionalConstructorInject');
+    $injector->createInstance(TestMissingOptionalConstructorInject::class);
   }
 
-  /**
-   * @expectedException Exception
-   * @expectedExceptionMessage No binding found for interface "Pulp\Test\MissingClass"
-   */
   public function testErrorIfNonOptionalConstructorParameterClassMissing() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Pulp\Test\TestMissingClassConstructorInject');
+    $this->expectException(\Exception::class, 'No binding found for interface "Pulp\Test\MissingClass"');
+    $injector->createInstance(TestMissingClassConstructorInject::class);
   }
 
   public function testNoErrorIfOptionalSetterParameterClassMissing() {
+    $this->expectNotToPerformAssertions();
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Pulp\Test\TestMissingOptionalSetterInject');
+    $injector->createInstance(TestMissingOptionalSetterInject::class);
   }
 
-  /**
-   * @expectedException Exception
-   * @expectedExceptionMessage No binding found for interface "Pulp\Test\MissingClass"
-   */
   public function testErrorIfNonOptionalSetterParameterClassMissing() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Pulp\Test\TestMissingSetterInject');
+    $this->expectException(\Exception::class, 'No binding found for interface "Pulp\Test\MissingClass"');
+    $injector->createInstance(TestMissingSetterInject::class);
   }
 
   public function testNoErrorIfOptionalPropertyClassMissing() {
+    $this->expectNotToPerformAssertions();
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Pulp\Test\TestMissingOptionalPropertyInject');
+    $injector->createInstance(TestMissingOptionalPropertyInject::class);
   }
 
   public function testAssistedParameter() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
     $param = 'test';
-    $object = $injector->createInstance('Pulp\Test\TestAssistedParamInject', ['assisted' => $param]);
+    $object = $injector->createInstance(TestAssistedParamInject::class, ['assisted' => $param]);
     $this->assertSame($param, $object->assisted);
   }
 
   public function testSoleAssistedParameter() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
     $param = 'test';
-    $object = $injector->createInstance('Pulp\Test\TestSoleAssistedParamInject', ['assisted' => $param]);
+    $object = $injector->createInstance(TestSoleAssistedParamInject::class, ['assisted' => $param]);
     $this->assertSame($param, $object->assisted);
   }
 
-  /**
-   * @expectedException Pulp\Binding\BindingException
-   * @expectedExceptionMessage Missing assisted parameter "assisted"
-   */
   public function testErrorOnMissingAssistedParameter() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $injector->createInstance('Pulp\Test\TestAssistedParamInject');
+    $this->expectException(BindingException::class, 'Missing assisted parameter "assisted"');
+    $injector->createInstance(TestAssistedParamInject::class);
   }
 
   public function testAssistedParameterDefault() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
-    $object = $injector->createInstance('Pulp\Test\TestAssistedParamDefaultInject');
+    $object = $injector->createInstance(TestAssistedParamDefaultInject::class);
     $this->assertSame('test', $object->assisted);
   }
 
   public function testMultipleAssistedParameterDefaults() {
     $injector = new Injector($this->binderMock, $this->annotationReader);
     $param = 'two';
-    $object = $injector->createInstance('Pulp\Test\TestMultipleAssistedParamDefaultInject', ['assistedTwo' => $param]);
+    $object = $injector->createInstance(TestMultipleAssistedParamDefaultInject::class, ['assistedTwo' => $param]);
     $this->assertSame('test', $object->assisted);
     $this->assertSame($param, $object->assistedTwo);
   }
