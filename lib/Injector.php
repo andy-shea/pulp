@@ -11,7 +11,7 @@
 
 namespace Pulp;
 
-use Doctrine\Common\Annotations\Reader;
+use ReflectionObject;
 
 /**
  * The `Injector` is the core of Pulp, supplying dependencies to objects based
@@ -23,11 +23,9 @@ class Injector {
 
   protected $classes = [];
   protected $binder;
-  protected $annotationReader;
 
-  public function __construct(Binding\Binder $binder, Reader $annotationReader) {
+  public function __construct(Binding\Binder $binder) {
     $this->binder = $binder;
-    $this->annotationReader = $annotationReader;
   }
 
   public function binder() {
@@ -44,14 +42,14 @@ class Injector {
   public function injectMembers($object) {
     $className = get_class($object);
     if (!isset($this->classes[$className])) {
-      $this->classes[$className] = new Meta\InjectionMetaClass($className, $this->annotationReader);
+      $this->classes[$className] = new Meta\InjectionMetaClass($className);
     }
     $this->injectProperties($object, $this->classes[$className]->injectableProperties());
     $this->injectSetters($object, $this->classes[$className]->injectableSetters());
   }
 
   protected function injectProperties($object, $properties) {
-    $reflectedObject = new \ReflectionObject($object);
+    $reflectedObject = new ReflectionObject($object);
     foreach ($properties as $property => $parameterMeta) {
       $reflectedProperty = $reflectedObject->getProperty($property);
       $value = $this->createParameter($parameterMeta);
@@ -76,7 +74,7 @@ class Injector {
   public function createInstance($className, $assistedParams = null, $isOptional = false) {
     if (class_exists($className)) {
       if (!isset($this->classes[$className])) {
-        $this->classes[$className] = new Meta\InjectionMetaClass($className, $this->annotationReader);
+        $this->classes[$className] = new Meta\InjectionMetaClass($className);
       }
       $class = new \ReflectionClass($className);
       $object = ($class->getConstructor())

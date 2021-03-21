@@ -13,9 +13,9 @@ namespace Pulp\Assisted;
 
 use Pulp\Provider\Provider;
 use Pulp\Injector;
-use Pulp\Meta\Annotation\Inject;
-use Pulp\Meta\Annotation\Returns;
-use Doctrine\Common\Annotations\Reader;
+use Pulp\Meta\Attribute\Inject;
+use Pulp\Meta\Attribute\Returns;
+use ReflectionClass;
 
 /**
  * A provider for automatically generated factories.
@@ -31,7 +31,6 @@ class FactoryProvider implements Provider {
   protected $factoryClass;
   protected $cacheFilePath;
   protected $factoryImpl;
-  protected $annotationReader;
 
   public static function setCacheDir($cacheDir) {
     if (!is_dir($cacheDir) && (false === @mkdir($cacheDir, 0770, true))) {
@@ -48,11 +47,7 @@ class FactoryProvider implements Provider {
     $this->cacheFilePath = self::$cacheDir . '/' . $this->factoryClass . '.php';
   }
 
-  public function setAnnotationReader($annotationReader) {
-    $this->annotationReader = $annotationReader;
-  }
-
-  /** @Inject */
+  #[Inject]
   public function initialise(Injector $injector) {
     $this->injector = $injector;
   }
@@ -82,17 +77,15 @@ class FactoryProvider implements Provider {
   }
 
   protected function createFactoryMethods() {
-    $reflectedInterface = new \ReflectionClass($this->factoryInterface);
+    $reflectedInterface = new ReflectionClass($this->factoryInterface);
     return array_map(function($reflectedMethod) {
-      $returns = $this->annotationReader->getMethodAnnotation($reflectedMethod, Returns::class);
-      if ($returns) {
-        return [
-          'name' => $reflectedMethod->getName(),
-          'returns' => $returns->value,
-          'args' => $this->createFactoryMethodParameters($reflectedMethod->getParameters())
-        ];
-      }
-      throw new AssistedInjectException('Missing @Returns annotation in factory interface');
+      $returnsType = Returns::extractReturnsType($reflectedMethod);
+      if (!$returnsType) throw new AssistedInjectException('Missing #[Returns(...)] attribute in factory interface');
+      return [
+        'name' => $reflectedMethod->getName(),
+        'returns' => $returnsType,
+        'args' => $this->createFactoryMethodParameters($reflectedMethod->getParameters())
+      ];
     }, $reflectedInterface->getMethods());
   }
 

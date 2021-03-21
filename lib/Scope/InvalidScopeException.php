@@ -11,12 +11,14 @@
 
 namespace Pulp\Scope;
 
+use InvalidArgumentException;
+
 /**
  * Exception that is thrown when an invalid scope is requested.
  *
  * @author Andy Shea <aa.shea@gmail.com>
  */
-class InvalidScopeException extends \InvalidArgumentException {
+class InvalidScopeException extends InvalidArgumentException {
 
   protected $message = 'Invalid scope specified';
 

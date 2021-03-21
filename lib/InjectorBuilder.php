@@ -11,8 +11,6 @@
 
 namespace Pulp;
 
-use Doctrine\Common\Annotations\Reader;
-
 /**
  * Builds an `Injector` from the binding definitions supplied by the given
  * `Module`s.
@@ -21,12 +19,7 @@ use Doctrine\Common\Annotations\Reader;
  */
 class InjectorBuilder {
 
-  protected $annotationReader;
   protected $modules = [];
-
-  public function __construct(Reader $annotationReader) {
-    $this->annotationReader = $annotationReader;
-  }
 
   public function addModules(array $modules) {
     $this->modules = array_merge($this->modules, $modules);
@@ -34,9 +27,9 @@ class InjectorBuilder {
   }
 
   public function build() {
-    $binder = new Binding\Binder($this->annotationReader);
+    $binder = new Binding\Binder();
     foreach ($this->modules as $module) $binder->install($module);
-    return new Injector($binder, $this->annotationReader);
+    return new Injector($binder);
   }
 
 }

@@ -15,6 +15,7 @@ use Pulp\Scope\Scopes;
 use Pulp\Scope\InstanceScope;
 use Pulp\Scope\SingletonScope;
 use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 class ScopesMethodTest extends TestCase {
 
@@ -33,7 +34,7 @@ class ScopesMethodTest extends TestCase {
   }
 
   public function testInvalidScope() {
-    $this->expectException(\InvalidArgumentException::class, 'Invalid scope specified');
+    $this->expectException(InvalidArgumentException::class, 'Invalid scope specified');
     Scopes::invalidScope();
   }
 

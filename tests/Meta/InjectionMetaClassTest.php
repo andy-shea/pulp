@@ -12,27 +12,16 @@
 namespace Pulp\Test\Meta;
 
 use Pulp\Meta\InjectionMetaClass;
-use Pulp\Meta\Annotation\Inject;
-use Pulp\Meta\Annotation\Assisted;
-use Pulp\Meta\Annotation\Named;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\Common\Annotations\AnnotationReader;
+use Pulp\Meta\Attribute\Inject;
+use Pulp\Meta\Attribute\Assisted;
+use Pulp\Meta\Attribute\Named;
 use PHPUnit\Framework\TestCase;
+use Exception;
 
 class InjectionMetaClassTest extends TestCase {
 
-  protected $annotationReader;
-
-  public function setup(): void {
-    AnnotationRegistry::registerLoader(function($class) {
-      $file = __DIR__ . '/../../lib/' . str_replace('\\', '/', substr($class, strlen('Pulp\\'))) . '.php';
-      if (file_exists($file)) return !!include $file;
-    });
-    $this->annotationReader = new AnnotationReader();
-  }
-
   public function testMethodInjection() {
-    $injectionMetaClass = new InjectionMetaClass(TestMethodInjectClass::class, $this->annotationReader);
+    $injectionMetaClass = new InjectionMetaClass(TestMethodInjectClass::class);
     $setters = $injectionMetaClass->injectableSetters();
     $this->assertEquals(1, count($setters));
     $this->assertEquals(1, count($setters['testMethod']));
@@ -43,14 +32,14 @@ class InjectionMetaClassTest extends TestCase {
   }
 
   public function testConstructorInjection() {
-    $injectionMetaClass = new InjectionMetaClass(TestConstructorInjectClass::class, $this->annotationReader);
+    $injectionMetaClass = new InjectionMetaClass(TestConstructorInjectClass::class);
     $this->assertTrue($injectionMetaClass->hasInjectableConstructor());
     $this->assertEquals(0, count($injectionMetaClass->injectableSetters()));
     $this->assertEquals(1, count($injectionMetaClass->injectableConstructor()));
   }
 
   public function testMultipleParametersInjection() {
-    $injectionMetaClass = new InjectionMetaClass(TestMultipleParametersInjectClass::class, $this->annotationReader);
+    $injectionMetaClass = new InjectionMetaClass(TestMultipleParametersInjectClass::class);
     $setters = $injectionMetaClass->injectableSetters();
     $this->assertEquals(1, count($setters));
     $this->assertEquals(2, count($setters['testMethod']));
@@ -59,24 +48,24 @@ class InjectionMetaClassTest extends TestCase {
   }
 
   public function testOptionalInjection() {
-    $injectionMetaClass = new InjectionMetaClass(TestOptionalInjectClass::class, $this->annotationReader);
+    $injectionMetaClass = new InjectionMetaClass(TestOptionalInjectClass::class);
     $setters = $injectionMetaClass->injectableSetters();
     $this->assertTrue($setters['testMethod'][0]->isOptional());
   }
 
   public function testAssistedInjection() {
-    $injectionMetaClass = new InjectionMetaClass(TestAssistedInjectClass::class, $this->annotationReader);
+    $injectionMetaClass = new InjectionMetaClass(TestAssistedInjectClass::class);
     $constructor = $injectionMetaClass->injectableConstructor();
     $this->assertTrue($constructor[0]->isAssisted());
   }
 
   public function testAssistedInjectionErrorOnSetter() {
-    $this->expectException(\Exception::class, 'Assisted injection not possible for setters');
-    new InjectionMetaClass(TestAssistedSetterInjectClass::class, $this->annotationReader);
+    $this->expectException(Exception::class, 'Assisted injection not possible for setters');
+    new InjectionMetaClass(TestAssistedSetterInjectClass::class);
   }
 
   public function testNamedInjection() {
-    $injectionMetaClass = new InjectionMetaClass(TestNamedInjectClass::class, $this->annotationReader);
+    $injectionMetaClass = new InjectionMetaClass(TestNamedInjectClass::class);
     $setters = $injectionMetaClass->injectableSetters();
     $this->assertEquals('TestProvider', $setters['testMethod'][0]->type());
   }
@@ -88,58 +77,49 @@ class TestParameterTwo {}
 
 class TestMethodInjectClass {
 
-  /** @Inject */
+  #[Inject]
   public function testMethod(TestParameter $param) {}
 
 }
 
 class TestConstructorInjectClass {
 
-  /** @Inject */
+  #[Inject]
   public function __construct(TestParameter $param) {}
 
 }
 
 class TestMultipleParametersInjectClass {
 
-  /** @Inject */
+  #[Inject]
   public function testMethod(TestParameter $param, TestParameterTwo $paramTwo) {}
 
 }
 
 class TestOptionalInjectClass {
 
-  /** @Inject */
+  #[Inject]
   public function testMethod(TestParameter $param = null) {}
 
 }
 
 class TestAssistedInjectClass {
 
-  /**
-   * @Inject
-   * @Assisted("param")
-   */
-  public function __construct(TestParameter $param) {}
+  #[Inject]
+  public function __construct(#[Assisted] TestParameter $param) {}
 
 }
 
 class TestAssistedSetterInjectClass {
 
-  /**
-   * @Inject
-   * @Assisted("param")
-   */
-  public function testMethod(TestParameter $param) {}
+  #[Inject]
+  public function testMethod(#[Assisted] TestParameter $param) {}
 
 }
 
 class TestNamedInjectClass {
 
-  /**
-   * @Inject
-   * @Named({"param" = "TestProvider"})
-   */
-  public function testMethod(TestParameter $param) {}
+  #[Inject]
+  public function testMethod(#[Named('TestProvider')] TestParameter $param) {}
 
 }

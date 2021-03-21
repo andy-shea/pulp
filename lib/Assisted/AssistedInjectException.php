@@ -11,9 +11,11 @@
 
 namespace Pulp\Assisted;
 
+use Exception;
+
 /**
  * Exception that is thrown on incorrectly defined Factory interfaces.
  *
  * @author Andy Shea <aa.shea@gmail.com>
  */
-class AssistedInjectException extends \Exception {}
+class AssistedInjectException extends Exception {}

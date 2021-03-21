@@ -15,9 +15,9 @@ use Pulp\Module;
 use Pulp\Provider\ProviderMethod;
 use Pulp\Scope\Scopes;
 use Pulp\Assisted\FactoryProvider;
-use Pulp\Meta\Annotation\Provides;
-use Pulp\Meta\Annotation\Singleton;
-use Doctrine\Common\Annotations\Reader;
+use Pulp\Meta\Attribute\Provides;
+use Pulp\Meta\Attribute\Singleton;
+use ReflectionClass;
 
 /**
  * Collects binding configurations used to resolve dependency graphs.
@@ -26,13 +26,8 @@ use Doctrine\Common\Annotations\Reader;
  */
 class Binder {
 
-  protected $annotationReader;
   protected $bindings;
   protected $modules = [];
-
-  public function __construct(Reader $annotationReader) {
-    $this->annotationReader = $annotationReader;
-  }
 
   public function install(Module $module) {
     if (!isset($this->modules[spl_object_hash($module)])) {
@@ -50,19 +45,17 @@ class Binder {
   }
 
   public function installFactoryProvider(FactoryProvider $factoryProvider) {
-    $factoryProvider->setAnnotationReader($this->annotationReader);
     $this->bind($factoryProvider->forInterface())->toProvider($factoryProvider);
   }
 
   protected function getProviderMethods(Module $module) {
-    $reflectedClass = new \ReflectionClass($module);
+    $reflectedClass = new ReflectionClass($module);
     foreach ($reflectedClass->getMethods() as $reflectedMethod) {
-      $provides = $this->annotationReader->getMethodAnnotation($reflectedMethod, Provides::class);
-      if ($provides) {
-        $binding = $this->bind($provides->value)->toProvider(new ProviderMethod($module, $reflectedMethod->getName()));
-        if ($this->annotationReader->getMethodAnnotation($reflectedMethod, Singleton::class)) {
-          $binding->in(Scopes::singleton());
-        }
+      $providesType = Provides::extractProvidesType($reflectedMethod);
+      if ($providesType) {
+        $binding = $this->bind($providesType)
+          ->toProvider(new ProviderMethod($module, $reflectedMethod->getName()));
+        if (Singleton::isSingleton($reflectedMethod)) $binding->in(Scopes::singleton());
       }
     }
   }

@@ -11,9 +11,11 @@
 
 namespace Pulp\Assisted;
 
+use Exception;
+
 /**
  * Exception that is thrown on failures when writing to cache.
  *
  * @author Andy Shea <aa.shea@gmail.com>
  */
-class AssistedInjectCacheException extends \Exception {}
+class AssistedInjectCacheException extends Exception {}

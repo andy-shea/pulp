@@ -14,7 +14,6 @@ namespace Pulp\Test;
 use Pulp\Injector;
 use Pulp\InjectorBuilder;
 use Pulp\Module;
-use Doctrine\Common\Annotations\AnnotationReader;
 use PHPUnit\Framework\TestCase;
 
 class InjectorBuilderTest extends TestCase {
@@ -26,7 +25,7 @@ class InjectorBuilderTest extends TestCase {
     $moduleMock->expects($this->once())->method('setBinder');
     $moduleMock->expects($this->once())->method('configure');
 
-    $injectorBuilder = new InjectorBuilder(new AnnotationReader());
+    $injectorBuilder = new InjectorBuilder();
     $injectorBuilder->addModules([$moduleMock]);
     $this->assertInstanceOf(Injector::class, $injectorBuilder->build());
   }
