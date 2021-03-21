@@ -99,7 +99,7 @@ class FactoryProvider implements Provider {
   protected function createFactoryMethodParameters($reflectedParameters) {
     return array_reduce($reflectedParameters, function($parameters, $reflectedParameter) {
       $name = $reflectedParameter->getName();
-      $class = $reflectedParameter->getClass() ? $reflectedParameter->getClass()->getName() . ' ' : '';
+      $class = $reflectedParameter->getType() ? $reflectedParameter->getType()->getName() . ' ' : '';
       $argument = $class . '$' . $name;
       if ($reflectedParameter->isDefaultValueAvailable()) {
         $argument .= '=' . var_export($reflectedParameter->getDefaultValue(), true);

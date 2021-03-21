@@ -1,18 +1,20 @@
 # Pulp
-**Latest release: [1.1.1](https://github.com/andy-shea/pulp/releases/latest)**<br/>
+
+**Latest release: [1.1.4](https://github.com/andy-shea/pulp/releases/latest)**<br/>
 **Continuous Integration:** [![Build Status](https://travis-ci.org/andy-shea/pulp.svg?branch=master)](https://travis-ci.org/andy-shea/pulp)<br/>
-**Requirements:** PHP 5.5+
+**Requirements:** PHP 7.4+
 
 Pulp handles the tedious wiring of object graphs for you leaving your code easier to change, test, and reuse. Think of Pulp's `@Inject` as the new `new`.
 
 ## Getting Started
+
 The easiest way to get up and running with Pulp is via Composer:
 
 ```
 composer require andy-shea/pulp
 ```
 
-From here, illustrating Pulp's usage is best served with a simple example. A security service that authenticates and authorises users in an app is a common requirement.  This security service could depend on an authentication strategy and access control list to perform the respective tasks:
+From here, illustrating Pulp's usage is best served with a simple example. A security service that authenticates and authorises users in an app is a common requirement. This security service could depend on an authentication strategy and access control list to perform the respective tasks:
 
 ```php
 class SecurityService {
@@ -37,7 +39,7 @@ class SecurityService {
 }
 ```
 
-We want to create a `SecurityService` by passing in an `AuthenticationStrategy` and `AccessControlList` implementation so it can fulfill it's roles of authentication and authorisation.  Pulp's understanding of this object graph can be configured by `Module`s, the building blocks of `Injector`s:
+We want to create a `SecurityService` by passing in an `AuthenticationStrategy` and `AccessControlList` implementation so it can fulfill it's roles of authentication and authorisation. Pulp's understanding of this object graph can be configured by `Module`s, the building blocks of `Injector`s:
 
 ```php
 public class SecurityModule extends AbstractModule {
@@ -52,7 +54,7 @@ public class SecurityModule extends AbstractModule {
 
 This tells Pulp to return an instance of `BasicAuthStrategy` whenever a class requires an `AuthenticationStrategy` and similarly an `AdminAcl` will be realised when an `AccessControlList` is depended on.
 
-We also need to let Pulp know which methods it should look to inject dependencies into.  Here the `SecurityService`'s constructor requires the two dependencies so we mark it with the `@Inject` annotation:
+We also need to let Pulp know which methods it should look to inject dependencies into. Here the `SecurityService`'s constructor requires the two dependencies so we mark it with the `@Inject` annotation:
 
 ```php
 class SecurityService {
@@ -76,9 +78,11 @@ $securityService = $injector->getInstance('SecurityService')
 ```
 
 ## Bindings
+
 For the `Injector` to perform its job correctly, it needs to have an understanding of the application's object graph. This can be configured by providing `Binding`s to your `Injector`.
 
 ### Linked Bindings
+
 Linked bindings map a type to its implementation. Here, the interface `AuthenticationStrategy` is mapped to the `BasicAuthStrategy` implementation:
 
 ```php
@@ -92,6 +96,7 @@ $this->bind('BasicAuthStrategy')->to('PersistentBasicAuthStrategy');
 ```
 
 ### Instance Bindings
+
 Actual instances of a type can be bound directly. This is usually only useful only for objects that don't have dependencies of their own, such as value objects and primitives, or for objects created via other means:
 
 ```php
@@ -99,9 +104,11 @@ $basicAuthStrategy = new BasicAuthStrategy();
 $this->bind('AuthenticationStrategy')->toInstance($basicAuthStrategy);
 $this->bind('dbConnectionString')->toInstance('pgsql:host=localhost;port=5432;dbname=testdb');
 ```
-**Note:** The second example highlights the ability to bind to a parameter name instead of a type.  This can be used for resolving primitive dependencies.
+
+**Note:** The second example highlights the ability to bind to a parameter name instead of a type. This can be used for resolving primitive dependencies.
 
 ### Provider Bindings
+
 When you need to do more work to create an object, use a `@Provides` method. The method must be defined within a module, and it must have a `@Provides` annotation with a corresponding bound type. The method will be invoked and the returned object injected whenever an instance of that type is needed:
 
 ```php
@@ -131,7 +138,7 @@ interface Provider {
 }
 ```
 
-Provider implementations can receive dependencies of their own.  Simply provide the `@Inject` annotation just like you would with any other class:
+Provider implementations can receive dependencies of their own. Simply provide the `@Inject` annotation just like you would with any other class:
 
 ```php
 public class DatabaseProvider implements Provider {
@@ -165,7 +172,7 @@ public class SecurityModule extends AbstractModule {
 }
 ```
 
-Pulp also offers automatic generation of providers.  This is useful for when the creation of a dependency, though not complex, can be expensive and lazy-loading of the dependency is required or if a cyclic dependency chain needs to be broken:
+Pulp also offers automatic generation of providers. This is useful for when the creation of a dependency, though not complex, can be expensive and lazy-loading of the dependency is required or if a cyclic dependency chain needs to be broken:
 
 ```php
 class BillingService {
@@ -180,9 +187,9 @@ class BillingService {
 }
 ```
 
-Here, instead of passing in a `CreditCardProcessor` directly, we inform Pulp via the `@Provides` annotation that a provider is required that can return the desired type when necessary.  Pulp will automatically create a provider that will return a `CreditCardProcessor` when its `get` method is called.
+Here, instead of passing in a `CreditCardProcessor` directly, we inform Pulp via the `@Provides` annotation that a provider is required that can return the desired type when necessary. Pulp will automatically create a provider that will return a `CreditCardProcessor` when its `get` method is called.
 
-Factories are a common pattern used to create an object from a family of objects determined at runtime.  However, the code to write factories are tediously repetitious and brittle.  Pulp alleviates the need to write the implementation code for factories by generating them automatically from a given factory interface.  Given two payment types:
+Factories are a common pattern used to create an object from a family of objects determined at runtime. However, the code to write factories are tediously repetitious and brittle. Pulp alleviates the need to write the implementation code for factories by generating them automatically from a given factory interface. Given two payment types:
 
 ```php
 class CreditCardPayment implements Payment {
@@ -247,10 +254,11 @@ class CashDrawer {
 
 Each method in the factory interface must be annotated with `@Returns` along with the corresponding type that will be created by the method.
 
-Objects returned from the automatically generated factory implementation will themselves have their dependencies injected.  In the example above, when `createCreditCardPayment()` is called, the returned `CreditCardPayment` will have a its `MerchantGateway` resolved.
+Objects returned from the automatically generated factory implementation will themselves have their dependencies injected. In the example above, when `createCreditCardPayment()` is called, the returned `CreditCardPayment` will have a its `MerchantGateway` resolved.
 
 ### Named Bindings
-Occasionally you will come across the need for variations of the same type.  To account for this, Pulp provides the `@Named` annotation as a method for aliasing types.  For example, your application may need to interact with multiple database sources:
+
+Occasionally you will come across the need for variations of the same type. To account for this, Pulp provides the `@Named` annotation as a method for aliasing types. For example, your application may need to interact with multiple database sources:
 
 ```php
 class ClientSecurityService {
@@ -272,7 +280,7 @@ class AdminSecurityService {
 }
 ```
 
-In this scenario, there is no way for Pulp to distinguish between the two databases when binding the dependencies.  However by aliasing the them using the `@Named` annotation, we can provide distinct binding targets to resolve the dependencies to:
+In this scenario, there is no way for Pulp to distinguish between the two databases when binding the dependencies. However by aliasing the them using the `@Named` annotation, we can provide distinct binding targets to resolve the dependencies to:
 
 ```php
 class ClientSecurityService {
@@ -304,12 +312,14 @@ public class SecurityModule extends AbstractModule {
 ```
 
 ### Implicit Bindings
-It's important to note that not all dependencies need an explicit binding.  If an object depends on a concrete class and there are no explicit bindings for this class, Pulp will inject an instance of the concrete class automatically.  This is called an implicit binding.
 
-An important implicit binding that is sometimes required is that of the `Injector` itself.  In framework code, sometimes you don't know the type you need until runtime. In this rare case you should inject the injector. Code that injects the injector does not self-document its dependencies, so this approach should be done sparingly.
+It's important to note that not all dependencies need an explicit binding. If an object depends on a concrete class and there are no explicit bindings for this class, Pulp will inject an instance of the concrete class automatically. This is called an implicit binding.
+
+An important implicit binding that is sometimes required is that of the `Injector` itself. In framework code, sometimes you don't know the type you need until runtime. In this rare case you should inject the injector. Code that injects the injector does not self-document its dependencies, so this approach should be done sparingly.
 
 ## Scopes
-By default, Pulp returns a new instance whenever a dependency is realised.  If more flexibility is required, Pulp provides `Scope`s to configure this behaviour.  In `Module`s, bindings can be further configured with `Scope`s:
+
+By default, Pulp returns a new instance whenever a dependency is realised. If more flexibility is required, Pulp provides `Scope`s to configure this behaviour. In `Module`s, bindings can be further configured with `Scope`s:
 
 ```php
 $this->bind('AuthenticationStrategy')->to('BasicAuthStrategy')->in(Scopes::singleton());
@@ -331,9 +341,11 @@ public function provideDatabase() {
 ```
 
 ## Injections
+
 The dependency injection pattern separates behaviour from dependency resolution. Rather than looking up dependencies directly or from factories, the pattern recommends that dependencies are passed in. The process of setting dependencies into an object is called injection.
 
 ### Property, Constructor, and Method Injections
+
 Pulp injects any properties, methods, or constructor defined on a class that is annotated with `@Inject`:
 
 ```php
@@ -366,10 +378,12 @@ class SecurityService {
 
 }
 ```
+
 Note that as PHP doesn't support [type-hinting on properties](https://wiki.php.net/rfc/typed-properties), `@Inject` can accept a `string` parameter designating the property type to inject.
 
 ### Optional Injections
-All dependencies in an injected method or constructor must be resolvable or an exception will be thrown.  The exceptions to this rule are parameters that have been defined with a default value; in these instances, Pulp will automatically fallback to the supplied default:
+
+All dependencies in an injected method or constructor must be resolvable or an exception will be thrown. The exceptions to this rule are parameters that have been defined with a default value; in these instances, Pulp will automatically fallback to the supplied default:
 
 ```php
 class PostgresDatabase {
@@ -381,10 +395,12 @@ class PostgresDatabase {
 
 }
 ```
+
 Here there is no binding found for `AdminConnectionString` so Pulp will inject the default value `pgsql:host=localhost;port=5432;dbname=testdb` instead.
 
 ### Assisted Injections
-Occasionally, a dependency will require parameters that can only be provided by the parent object.  A typical pattern to solve this problem is to provide a factory that knows how to create the object when the given parameters are passed in.  As shown above in the Provider Bindings section, Pulp solves a lot of the boilerplate here by automatically generating these factories for you when given a factory interface describing the contract required to create the objects.  The difference here is we now need to specify the parameters that require parent object contribution so Pulp can build the factory method correctly.  To expand on the previous example, our payment types require an amount to be passed in to their constructors:
+
+Occasionally, a dependency will require parameters that can only be provided by the parent object. A typical pattern to solve this problem is to provide a factory that knows how to create the object when the given parameters are passed in. As shown above in the Provider Bindings section, Pulp solves a lot of the boilerplate here by automatically generating these factories for you when given a factory interface describing the contract required to create the objects. The difference here is we now need to specify the parameters that require parent object contribution so Pulp can build the factory method correctly. To expand on the previous example, our payment types require an amount to be passed in to their constructors:
 
 ```php
 class CreditCardPayment implements Payment {

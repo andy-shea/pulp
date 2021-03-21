@@ -83,7 +83,7 @@ class FactoryProviderTest extends TestCase {
     $this->assertEquals(3, $reflectedMethod->getNumberOfParameters());
     $reflectedParameters = $reflectedMethod->getParameters();
     $this->assertEquals('param', $reflectedParameters[0]->getName());
-    $this->assertEquals('Pulp\Test\Assisted\Assisted', $reflectedParameters[0]->getClass()->getName());
+    $this->assertEquals(Assisted::class, $reflectedParameters[0]->getType()->getName());
     $this->assertEquals('second', $reflectedParameters[1]->getName());
     $this->assertFalse($reflectedParameters[1]->isDefaultValueAvailable());
     $this->assertEquals('optional', $reflectedParameters[2]->getName());

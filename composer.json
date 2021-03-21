@@ -9,9 +9,14 @@
   ],
   "homepage": "https://github.com/andy-shea/pulp",
   "license": "MIT",
-  "authors": [{"name": "Andy Shea", "email": "aa.shea@gmail.com"}],
+  "authors": [
+    {
+      "name": "Andy Shea",
+      "email": "aa.shea@gmail.com"
+    }
+  ],
   "require": {
-    "php": ">=5.5",
+    "php": ">=7.4",
     "doctrine/annotations": "^1.12"
   },
   "require-dev": {
