@@ -14,6 +14,8 @@ namespace Pulp\Binding;
 use Pulp\Injector;
 use Pulp\Scope\Scopes;
 use Pulp\Scope\Scope;
+use Pulp\Provider\Provider;
+use Closure;
 
 /**
  * A mapping of a dependency's interface or class to a strategy for realising that
@@ -23,55 +25,55 @@ use Pulp\Scope\Scope;
  */
 class Binding {
 
-  protected $interface;
-  protected $implementation = null;
-  protected $instance = null;
-  protected $provider = null;
-  protected $scope;
+  protected string|int $interface;
+  protected ?string $implementation = null;
+  protected mixed $instance = null;
+  protected Provider|Closure|null $provider = null;
+  protected Scope $scope;
 
-  public function __construct($interface) {
+  public function __construct(string $interface) {
     $this->interface = $interface;
     $this->scope = Scopes::instance();
   }
 
-  public function to($implementation) {
+  public function to(string $implementation): self {
     if ($implementation == $this->interface) throw new BindingException('Cannot bind an interface to itself');
     $this->implementation = $implementation;
     return $this;
   }
 
-  public function toInstance($instance) {
+  public function toInstance(mixed $instance): self {
     $this->instance = $instance;
     return $this;
   }
 
-  public function toProvider($provider) {
+  public function toProvider(Provider|Closure $provider): self {
     $this->provider = $provider;
     return $this;
   }
 
-  public function in(Scope $scope) {
+  public function in(Scope $scope): void {
     $this->scope = $scope;
   }
 
-  protected function isBoundToInstance() {
+  protected function isBoundToInstance(): bool {
     return ($this->instance !== null);
   }
 
-  protected function isBoundToImplementation() {
+  protected function isBoundToImplementation(): bool {
     return ($this->implementation !== null);
   }
 
-  protected function isBoundToProvider() {
+  protected function isBoundToProvider(): bool {
     return ($this->provider !== null);
   }
 
-  public function getDependency(Injector $injector, $assistedParams = null, $isOptional = false) {
+  public function getDependency(Injector $injector, array $assistedParams = null, bool $isOptional = false): mixed {
     return $this->scope->getDependency($this, $injector, $assistedParams, $isOptional);
   }
 
   // should only be called by a Scope implementation
-  public function createDependency(Injector $injector, $assistedParams = null, $isOptional = false) {
+  public function createDependency(Injector $injector, array $assistedParams = null, bool $isOptional = false): mixed {
     if ($this->isBoundToImplementation()) return $injector->getInstance($this->implementation, $assistedParams, $isOptional);
     if ($this->isBoundToProvider()) {
       // TODO: inject the parameters instead of the injector itself

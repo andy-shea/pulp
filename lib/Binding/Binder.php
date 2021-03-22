@@ -26,10 +26,10 @@ use ReflectionClass;
  */
 class Binder {
 
-  protected $bindings;
-  protected $modules = [];
+  protected array $bindings = [];
+  protected array $modules = [];
 
-  public function install(Module $module) {
+  public function install(Module $module): void {
     if (!isset($this->modules[spl_object_hash($module)])) {
       $module->setBinder($this);
       $module->configure();
@@ -38,17 +38,17 @@ class Binder {
     }
   }
 
-  public function bind($interface) {
+  public function bind(string $interface): Binding {
     $binding = new Binding($interface);
     $this->bindings[$interface] = $binding;
     return $binding;
   }
 
-  public function installFactoryProvider(FactoryProvider $factoryProvider) {
+  public function installFactoryProvider(FactoryProvider $factoryProvider): void {
     $this->bind($factoryProvider->forInterface())->toProvider($factoryProvider);
   }
 
-  protected function getProviderMethods(Module $module) {
+  protected function getProviderMethods(Module $module): void {
     $reflectedClass = new ReflectionClass($module);
     foreach ($reflectedClass->getMethods() as $reflectedMethod) {
       $providesType = Provides::extractProvidesType($reflectedMethod);
@@ -61,7 +61,7 @@ class Binder {
   }
 
   // TODO: this needs to handle chained linked bindings
-  public function getBindingFor($interface) {
+  public function getBindingFor(string $interface): ?Binding {
     if (isset($this->bindings[$interface])) return $this->bindings[$interface];
     return null;
   }

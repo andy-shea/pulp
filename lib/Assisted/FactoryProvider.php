@@ -16,6 +16,8 @@ use Pulp\Injector;
 use Pulp\Meta\Attribute\Inject;
 use Pulp\Meta\Attribute\Returns;
 use ReflectionClass;
+use ReflectionParameter;
+use ReflectionMethod;
 
 /**
  * A provider for automatically generated factories.
@@ -26,13 +28,13 @@ class FactoryProvider implements Provider {
 
   protected static $cacheDir;
 
-  protected $injector;
-  protected $factoryInterface;
-  protected $factoryClass;
-  protected $cacheFilePath;
-  protected $factoryImpl;
+  protected Injector $injector;
+  protected string $factoryInterface;
+  protected string $factoryClass;
+  protected string $cacheFilePath;
+  protected ?object $factoryImpl = null;
 
-  public static function setCacheDir($cacheDir) {
+  public static function setCacheDir(string $cacheDir): void {
     if (!is_dir($cacheDir) && (false === @mkdir($cacheDir, 0770, true))) {
       throw new AssistedInjectCacheException('Problem creating cache directory: ' . $cacheDir);
     }
@@ -40,7 +42,7 @@ class FactoryProvider implements Provider {
     self::$cacheDir = $cacheDir;
   }
 
-  public function __construct($factoryInterface) {
+  public function __construct(string $factoryInterface) {
     $this->factoryInterface = $factoryInterface;
     $this->factoryClass = str_replace('\\', '_', $factoryInterface) . 'Impl';
     if (!self::$cacheDir) throw new AssistedInjectCacheException('Cache directory not set, call FactoryProvider::setCacheDir first');
@@ -48,15 +50,15 @@ class FactoryProvider implements Provider {
   }
 
   #[Inject]
-  public function initialise(Injector $injector) {
+  public function initialise(Injector $injector): void {
     $this->injector = $injector;
   }
 
-  public function forInterface() {
+  public function forInterface(): string {
     return $this->factoryInterface;
   }
 
-  public function get() {
+  public function get(): object {
     if (!$this->factoryImpl) {
       if (!file_exists($this->cacheFilePath)) $this->createFactory();
       require_once $this->cacheFilePath;
@@ -65,7 +67,7 @@ class FactoryProvider implements Provider {
     return $this->factoryImpl;
   }
 
-  protected function createFactory() {
+  protected function createFactory(): void {
     try {
       ob_start();
       include 'template.php';
@@ -76,9 +78,9 @@ class FactoryProvider implements Provider {
     }
   }
 
-  protected function createFactoryMethods() {
+  protected function createFactoryMethods(): array {
     $reflectedInterface = new ReflectionClass($this->factoryInterface);
-    return array_map(function($reflectedMethod) {
+    return array_map(function(ReflectionMethod $reflectedMethod) {
       $returnsType = Returns::extractReturnsType($reflectedMethod);
       if (!$returnsType) throw new AssistedInjectException('Missing #[Returns(...)] attribute in factory interface');
       return [
@@ -89,8 +91,8 @@ class FactoryProvider implements Provider {
     }, $reflectedInterface->getMethods());
   }
 
-  protected function createFactoryMethodParameters($reflectedParameters) {
-    return array_reduce($reflectedParameters, function($parameters, $reflectedParameter) {
+  protected function createFactoryMethodParameters(array $reflectedParameters): array {
+    return array_reduce($reflectedParameters, function(array $parameters, ReflectionParameter $reflectedParameter) {
       $name = $reflectedParameter->getName();
       $class = $reflectedParameter->getType() ? $reflectedParameter->getType()->getName() . ' ' : '';
       $argument = $class . '$' . $name;

@@ -26,21 +26,20 @@ use Exception;
  */
 class InjectionMetaClass {
 
-  protected $injectableProperties = [];
-  protected $injectableMethods = [];
-  protected $class;
+  protected array $injectableProperties = [];
+  protected array $injectableMethods = [];
 
-  public function __construct($className) {
-    $this->class = $className;
-    $reflectedClass = new ReflectionClass($className);
-    $this->getInjectableProperties($reflectedClass);
-    $this->getInjectableMethods($reflectedClass->getMethods());
+  public function __construct(string $type) {
+    $reflectedClass = new ReflectionClass($type);
+    $this->injectableProperties = $this->getInjectableProperties($reflectedClass);
+    $this->injectableMethods = $this->getInjectableMethods($reflectedClass->getMethods());
   }
 
-  protected function getInjectableProperties(ReflectionClass $reflectedClass) {
+  protected function getInjectableProperties(ReflectionClass $reflectedClass): array {
     $propertyTypes = ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED | ReflectionProperty::IS_PRIVATE;
     $classProperties = $reflectedClass->getProperties($propertyTypes);
     $defaults = $reflectedClass->getDefaultProperties();
+    $injectableProperties = [];
     foreach ($classProperties as $reflectedProperty) {
       if (Inject::shouldInject($reflectedProperty)) {
         $name = $reflectedProperty->getName();
@@ -53,12 +52,14 @@ class InjectionMetaClass {
         if ($reflectedProperty->hasDefaultValue()) {
           $injectionProperty->setDefaultValue($reflectedProperty->getDefaultValue());
         }
-        $this->injectableProperties[$name] = $injectionProperty;
+        $injectableProperties[$name] = $injectionProperty;
       }
     }
+    return $injectableProperties;
   }
 
-  protected function getInjectableMethods($classMethods) {
+  protected function getInjectableMethods(array $classMethods): array {
+    $injectableMethods = [];
     foreach ($classMethods as $reflectedMethod) {
       if (Inject::shouldInject($reflectedMethod)) {
         $parameters = [];
@@ -68,7 +69,9 @@ class InjectionMetaClass {
           $providesType = Provides::extractProvidesType($reflectedParameter);
           $injectionParameter = new InjectionParameter($name, $reflectedParameter);
           if (Assisted::isAssisted($reflectedParameter)) {
-            if ($reflectedMethod->getName() !== '__construct') throw new Exception('Assisted injection not possible for setters');
+            if ($reflectedMethod->getName() !== '__construct') {
+              throw new Exception('Assisted injection not possible for setters');
+            }
             $injectionParameter->setIsAssisted(true);
           }
           else if ($namedType) $injectionParameter->setAlias($namedType);
@@ -79,25 +82,26 @@ class InjectionMetaClass {
           }
           $parameters[] = $injectionParameter;
         }
-        if ($parameters) $this->injectableMethods[$reflectedMethod->getName()] = $parameters;
+        if ($parameters) $injectableMethods[$reflectedMethod->getName()] = $parameters;
       }
     }
+    return $injectableMethods;
   }
 
-  public function hasInjectableConstructor() {
+  public function hasInjectableConstructor(): bool {
     return isset($this->injectableMethods['__construct']);
   }
 
-  public function injectableConstructor() {
+  public function injectableConstructor(): array {
     if (!$this->hasInjectableConstructor()) throw new Exception('No injectable constructor found');
     return $this->injectableMethods['__construct'];
   }
 
-  public function injectableSetters() {
+  public function injectableSetters(): array {
     return array_diff_key($this->injectableMethods, array_flip(['__construct']));
   }
 
-  public function injectableProperties() {
+  public function injectableProperties(): array {
     return $this->injectableProperties;
   }
 

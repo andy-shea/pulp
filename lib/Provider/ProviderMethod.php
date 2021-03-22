@@ -23,16 +23,16 @@ use Pulp\Module;
  */
 class ProviderMethod implements Provider {
 
-  protected $module;
-  protected $methodName;
+  protected Module $module;
+  protected string $methodName;
 
-  public function __construct(Module $module, $methodName) {
+  public function __construct(Module $module, string $methodName) {
     $this->module = $module;
     $this->methodName = $methodName;
   }
 
-  public function get() {
-    return call_user_func_array(array($this->module, $this->methodName), array());
+  public function get(): mixed {
+    return call_user_func_array(array($this->module, $this->methodName), []);
   }
 
 }

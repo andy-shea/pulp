@@ -22,6 +22,11 @@ use Pulp\Injector;
  */
 interface Scope {
 
-  function getDependency(Binding $binding, Injector $injector, $assistedParams = null, $isOptional = false);
+  function getDependency(
+    Binding $binding,
+    Injector $injector,
+    array $assistedParams = null,
+    bool $isOptional = false
+  ): mixed;
 
 }

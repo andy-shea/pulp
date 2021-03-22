@@ -11,6 +11,10 @@
 
 namespace Pulp;
 
+use Pulp\Binding\Binder;
+use Pulp\Binding\Binding;
+use Assisted\FactoryProvider;
+
 /**
  * A support class for `Module`s to ease implementation by reducing repetition.
  * Mirrors Binder functions for a more readable configuration.
@@ -19,17 +23,17 @@ namespace Pulp;
  */
 abstract class AbstractModule implements Module {
 
-  protected $binder;
+  protected Binder $binder;
 
-  public function setBinder(Binding\Binder $binder) {
+  public function setBinder(Binder $binder): void {
     $this->binder = $binder;
   }
 
-  protected function bind($interface) {
+  protected function bind(string $interface): Binding {
     return $this->binder->bind($interface);
   }
 
-  protected function install(Assisted\FactoryProvider $factoryProvider) {
+  protected function install(FactoryProvider $factoryProvider): void {
     $this->binder->installFactoryProvider($factoryProvider);
   }
 

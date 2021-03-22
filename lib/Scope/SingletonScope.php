@@ -22,9 +22,14 @@ use Pulp\Injector;
  */
 class SingletonScope implements Scope {
 
-  protected $dependencies = array();
+  protected array $dependencies = [];
 
-  public function getDependency(Binding $binding, Injector $injector, $assistedParams = null, $isOptional = false) {
+  public function getDependency(
+    Binding $binding,
+    Injector $injector,
+    array $assistedParams = null,
+    bool $isOptional = false
+  ): mixed {
     $uniqueHash = $this->getUniqueHash($binding, $assistedParams);
     if (!isset($this->dependencies[$uniqueHash])) {
       $this->dependencies[$uniqueHash] = $binding->createDependency($injector, $assistedParams, $isOptional);
@@ -32,18 +37,22 @@ class SingletonScope implements Scope {
     return $this->dependencies[$uniqueHash];
   }
 
-  protected function getUniqueHash($binding, $assistedParams) {
+  protected function getUniqueHash(Binding $binding, ?array $assistedParams): string {
     $hash = [spl_object_hash($binding)];
-    if ($assistedParams) $this->appendParamsHash($hash, $assistedParams);
-    return implode(':::', $hash);
+    if ($assistedParams) {
+      $hash = array_merge($hash, $this->appendParamsHash($assistedParams));
+    }
+    return implode("\u0001", $hash);
   }
 
-  protected function appendParamsHash(&$hash, $params) {
+  protected function appendParamsHash(array $params): array {
+    $hash = [];
     foreach ($params as $param) {
       if (is_object($param)) $hash[] = spl_object_hash($param);
       else if (is_array($param)) $this->appendParamsHash($hash, $param);
       else $hash[] = $param;
     }
+    return $hash;
   }
 
 }

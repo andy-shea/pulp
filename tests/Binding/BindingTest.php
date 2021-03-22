@@ -16,6 +16,7 @@ use Pulp\Injector;
 use Pulp\Binding\BindingException;
 use PHPUnit\Framework\TestCase;
 use StdClass;
+use Closure;
 
 class BindingTest extends TestCase {
 
@@ -45,13 +46,11 @@ class BindingTest extends TestCase {
         ->getMock();
 
     $binding = new Binding('TestInterface');
-    $binding->toProvider(function(Injector $injector) {
-      return $injector;
-    });
+    $binding->toProvider(fn(Injector $injector): Injector => $injector);
     $this->assertSame($injectorMock, $binding->createDependency($injectorMock));
 
     $binding = new Binding('TestInterface');
-    $binding->toProvider([$this, 'mockProvider']);
+    $binding->toProvider(Closure::fromCallable([$this, 'mockProvider']));
     $this->assertSame($injectorMock, $binding->createDependency($injectorMock));
   }
 

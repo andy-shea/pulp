@@ -11,7 +11,13 @@
 
 namespace Pulp;
 
+use Pulp\Binding\Binder;
+use Pulp\Meta\InjectionMetaClass;
+use Pulp\Meta\InjectionParameter;
+use Pulp\Provider\ProviderImpl;
+use Pulp\Binding\BindingException;
 use ReflectionObject;
+use ReflectionClass;
 
 /**
  * The `Injector` is the core of Pulp, supplying dependencies to objects based
@@ -21,34 +27,34 @@ use ReflectionObject;
  */
 class Injector {
 
-  protected $classes = [];
-  protected $binder;
+  protected array $classes = [];
+  protected Binder $binder;
 
-  public function __construct(Binding\Binder $binder) {
+  public function __construct(Binder $binder) {
     $this->binder = $binder;
   }
 
-  public function binder() {
+  public function binder(): Binder {
     return $this->binder;
   }
 
-  public function getInstance($className, $assistedParams = false, $isOptional = false) {
+  public function getInstance(string $className, array $assistedParams = null, bool $isOptional = false): mixed {
     if ($className === __CLASS__) return $this;
     $binding = $this->binder->getBindingFor($className);
     if ($binding) return $binding->getDependency($this, $assistedParams, $isOptional);
     return $this->createInstance($className, $assistedParams, $isOptional);
   }
 
-  public function injectMembers($object) {
+  public function injectMembers(object $object): void {
     $className = get_class($object);
     if (!isset($this->classes[$className])) {
-      $this->classes[$className] = new Meta\InjectionMetaClass($className);
+      $this->classes[$className] = new InjectionMetaClass($className);
     }
     $this->injectProperties($object, $this->classes[$className]->injectableProperties());
     $this->injectSetters($object, $this->classes[$className]->injectableSetters());
   }
 
-  protected function injectProperties($object, $properties) {
+  protected function injectProperties(object $object, array $properties): void {
     $reflectedObject = new ReflectionObject($object);
     foreach ($properties as $property => $parameterMeta) {
       $reflectedProperty = $reflectedObject->getProperty($property);
@@ -61,22 +67,23 @@ class Injector {
     }
   }
 
-  protected function injectSetters($object, $setters) {
+  protected function injectSetters(object $object, array $setters): void {
     foreach ($setters as $setter => $setterInjectionDetails) {
-      call_user_func_array([$object, $setter], array_map(function($parameterMeta) {
-        return $this->createParameter($parameterMeta);
-      }, $setterInjectionDetails));
+      call_user_func_array([$object, $setter], array_map(
+        fn(InjectionParameter $parameterMeta): mixed => $this->createParameter($parameterMeta),
+        $setterInjectionDetails
+      ));
     }
   }
 
   // TODO: cache this outside of per-session cache
   // should only be called internally via Binding
-  public function createInstance($className, $assistedParams = null, $isOptional = false) {
+  public function createInstance(string $className, array $assistedParams = null, bool $isOptional = false): mixed {
     if (class_exists($className)) {
       if (!isset($this->classes[$className])) {
-        $this->classes[$className] = new Meta\InjectionMetaClass($className);
+        $this->classes[$className] = new InjectionMetaClass($className);
       }
-      $class = new \ReflectionClass($className);
+      $class = new ReflectionClass($className);
       $object = ($class->getConstructor())
         ? $class->newInstanceArgs(
           array_values($this->createConstructorParameters($this->classes[$className], $assistedParams))
@@ -85,16 +92,18 @@ class Injector {
       $this->injectMembers($object);
       return $object;
     }
-    if (!$isOptional) throw new Binding\BindingException('No binding found for interface "' . $className . '"');
+    if (!$isOptional) throw new BindingException('No binding found for interface "' . $className . '"');
     return null;
   }
 
-  protected function createConstructorParameters(Meta\InjectionMetaClass $metaClass, $assistedParams) {
+  protected function createConstructorParameters(InjectionMetaClass $metaClass, ?array $assistedParams = null): array {
     if ($metaClass->hasInjectableConstructor()) {
-      return array_map(function($parameterMeta) use ($assistedParams) {
+      return array_map(function(InjectionParameter $parameterMeta) use ($assistedParams) {
         if ($parameterMeta->isAssisted()) {
           if (!isset($assistedParams[$parameterMeta->name()])) {
-            if (!$parameterMeta->isOptional()) throw new Binding\BindingException('Missing assisted parameter "' . $parameterMeta->name() . '"');
+            if (!$parameterMeta->isOptional()) {
+              throw new BindingException('Missing assisted parameter "' . $parameterMeta->name() . '"');
+            }
             else return $parameterMeta->defaultValue();
           }
           return $assistedParams[$parameterMeta->name()];
@@ -105,9 +114,9 @@ class Injector {
     else return (array)$assistedParams;
   }
 
-  protected function createParameter(Meta\InjectionParameter $parameterMeta) {
-    if ($parameterMeta->isProvider()) return new Provider\ProviderImpl($this, $parameterMeta->provides());
-    return $this->getInstance($parameterMeta->type(), false, $parameterMeta->isOptional());
+  protected function createParameter(InjectionParameter $parameterMeta): mixed {
+    if ($parameterMeta->isProvider()) return new ProviderImpl($this, $parameterMeta->provides());
+    return $this->getInstance($parameterMeta->type(), null, $parameterMeta->isOptional());
   }
 
 }
