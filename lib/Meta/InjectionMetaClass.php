@@ -15,6 +15,7 @@ use Pulp\Meta\Attribute\Inject;
 use Pulp\Meta\Attribute\Named;
 use Pulp\Meta\Attribute\Provides;
 use Pulp\Meta\Attribute\Assisted;
+use Pulp\Meta\Attribute\Qualifier;
 use ReflectionClass;
 use ReflectionProperty;
 use Exception;
@@ -43,12 +44,19 @@ class InjectionMetaClass {
     foreach ($classProperties as $reflectedProperty) {
       if (Inject::shouldInject($reflectedProperty)) {
         $name = $reflectedProperty->getName();
-        $namedType = Named::extractNamedType($reflectedProperty);
-        $providesType = Provides::extractProvidesType($reflectedProperty);
         $injectionProperty = new InjectionParameter($name, $reflectedProperty);
-        if ($namedType) $injectionProperty->setAlias($namedType);
-        else if ($providesType) $injectionProperty->setProvides($providesType);
-        else if ($type = $reflectedProperty->getType()) $injectionProperty->setInterface($type->getName());
+        if ($qualifierType = Qualifier::getQualifier($reflectedProperty)) {
+          $injectionProperty->setAlias($qualifierType);
+        }
+        else if ($namedType = Named::extractNamedType($reflectedProperty)) {
+          $injectionProperty->setAlias($namedType);
+        }
+        else if ($providesType = Provides::extractProvidesType($reflectedProperty)) {
+          $injectionProperty->setProvides($providesType);
+        }
+        else if ($type = $reflectedProperty->getType()) {
+          $injectionProperty->setInterface($type->getName());
+        }
         if ($reflectedProperty->hasDefaultValue()) {
           $injectionProperty->setDefaultValue($reflectedProperty->getDefaultValue());
         }
@@ -63,10 +71,8 @@ class InjectionMetaClass {
     foreach ($classMethods as $reflectedMethod) {
       if (Inject::shouldInject($reflectedMethod)) {
         $parameters = [];
-        foreach ($reflectedMethod->getParameters() as $reflectedParameter) { 
+        foreach ($reflectedMethod->getParameters() as $reflectedParameter) {
           $name = $reflectedParameter->getName();
-          $namedType = Named::extractNamedType($reflectedParameter);
-          $providesType = Provides::extractProvidesType($reflectedParameter);
           $injectionParameter = new InjectionParameter($name, $reflectedParameter);
           if (Assisted::isAssisted($reflectedParameter)) {
             if ($reflectedMethod->getName() !== '__construct') {
@@ -74,9 +80,18 @@ class InjectionMetaClass {
             }
             $injectionParameter->setIsAssisted(true);
           }
-          else if ($namedType) $injectionParameter->setAlias($namedType);
-          else if ($providesType) $injectionParameter->setProvides($providesType);
-          else if ($type = $reflectedParameter->getType()) $injectionParameter->setInterface($type->getName());
+          else if ($qualifierType = Qualifier::getQualifier($reflectedParameter)) {
+            $injectionParameter->setAlias($qualifierType);
+          }
+          else if ($namedType = Named::extractNamedType($reflectedParameter)) {
+            $injectionParameter->setAlias($namedType);
+          }
+          else if ($providesType = Provides::extractProvidesType($reflectedParameter)) {
+            $injectionParameter->setProvides($providesType);
+          }
+          else if ($type = $reflectedParameter->getType()) {
+            $injectionParameter->setInterface($type->getName());
+          }
           if ($reflectedParameter->isDefaultValueAvailable()) {
             $injectionParameter->setDefaultValue($reflectedParameter->getDefaultValue());
           }

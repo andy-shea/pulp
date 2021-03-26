@@ -260,9 +260,9 @@ Each method in the factory interface must be annotated with `Returns` along with
 
 Objects returned from the automatically generated factory implementation will themselves have their dependencies injected. In the example above, when `createCreditCardPayment()` is called, the returned `CreditCardPayment` will have a its `MerchantGateway` resolved.
 
-### Named Bindings
+### Annotated Bindings
 
-Occasionally you will come across the need for variations of the same type. To account for this, Pulp provides the `Named` attribute as a method for aliasing types. For example, your application may need to interact with multiple database sources:
+Occasionally you will come across the need for different variations of the same type. To account for this, Pulp provides `Qualifier`s and the `Named` attribute as methods for annotating types. For example, your application may need to interact with multiple database sources:
 
 ```php
 class ClientSecurityService {
@@ -284,7 +284,50 @@ class AdminSecurityService {
 }
 ```
 
-In this scenario, there is no way for Pulp to distinguish between the two databases when binding the dependencies. However by aliasing the them using the `Named` attribute, we can provide distinct binding targets to resolve the dependencies to:
+In this scenario, there is no way for Pulp to distinguish between the two databases when binding the dependencies. However by annotating them, we can provide distinct binding targets to resolve the dependencies to.
+For qualifiers, first create new `Qualifier` attributes representing the type variances:
+
+```php
+#[Attribute(Attribute::TARGET_PARAMETER), Qualifier]
+final class ClientDatabase {}
+
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER), Qualifier]
+final class AdminDatabase {}
+```
+
+Then annotate the required parameters or properties with the new `Qualifier` attributes:
+
+```php
+class ClientSecurityService {
+
+  #[Inject]
+  public function __construct(#[ClientDatabase] Database $db) {
+    ..
+  }
+
+}
+
+class AdminSecurityService {
+
+  #[Inject, AdminDatabase] protected Database $db;
+
+}
+```
+
+Finally, bind the qualifiers in a module:
+
+```php
+public class SecurityModule extends AbstractModule {
+
+  protected void configure() {
+    $this->bind(ClientDatabase::class)->toProvider(ClientDatabaseProvider::class);
+    $this->bind(AdminDatabase::class)->toProvider(AdminDatabaseProvider::class);
+  }
+
+}
+```
+
+Alternatively, this can be accomplished utilising `Named` attributes:
 
 ```php
 class ClientSecurityService {
@@ -298,18 +341,15 @@ class ClientSecurityService {
 
 class AdminSecurityService {
 
-  #[Inject]
-  public function __construct(#[Named('AdminDatabase')] Database $db) {
-    ..
-  }
+  #[Inject, Named('AdminDatabase')] protected Database $db;
 
 }
 
 public class SecurityModule extends AbstractModule {
 
   protected void configure() {
-    $this->bind(ClientDatabase::class)->toProvider(ClientDatabaseProvider::class);
-    $this->bind(AdminDatabase::class)->toProvider(AdminDatabaseProvider::class);
+    $this->bind('ClientDatabase')->toProvider(ClientDatabaseProvider::class);
+    $this->bind('AdminDatabase')->toProvider(AdminDatabaseProvider::class);
   }
 
 }

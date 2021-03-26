@@ -11,10 +11,12 @@
  
 namespace Pulp\Test\Meta;
 
+use Attribute;
 use Pulp\Meta\InjectionMetaClass;
 use Pulp\Meta\Attribute\Inject;
 use Pulp\Meta\Attribute\Assisted;
 use Pulp\Meta\Attribute\Named;
+use Pulp\Meta\Attribute\Qualifier;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -70,6 +72,12 @@ class InjectionMetaClassTest extends TestCase {
     $this->assertEquals('TestProvider', $setters['testMethod'][0]->type());
   }
 
+  public function testQualifierInjection() {
+    $injectionMetaClass = new InjectionMetaClass(TestQualifierInjectClass::class);
+    $setters = $injectionMetaClass->injectableSetters();
+    $this->assertEquals(QualifiedAttribute::class, $setters['testMethod'][0]->type());
+  }
+
 }
 
 class TestParameter {}
@@ -121,5 +129,15 @@ class TestNamedInjectClass {
 
   #[Inject]
   public function testMethod(#[Named('TestProvider')] TestParameter $param) {}
+
+}
+
+#[Attribute(Attribute::TARGET_PARAMETER), Qualifier]
+final class QualifiedAttribute {}
+
+class TestQualifierInjectClass {
+
+  #[Inject]
+  public function testMethod(#[QualifiedAttribute] TestParameter $param) {}
 
 }
