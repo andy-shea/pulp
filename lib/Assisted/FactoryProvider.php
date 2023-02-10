@@ -84,7 +84,7 @@ class FactoryProvider implements Provider {
   protected function createFactoryMethods() {
     $reflectedInterface = new \ReflectionClass($this->factoryInterface);
     return array_map(function($reflectedMethod) {
-      $returns = $this->annotationReader->getMethodAnnotation($reflectedMethod, Returns::CLASS);
+      $returns = $this->annotationReader->getMethodAnnotation($reflectedMethod, Returns::class);
       if ($returns) {
         return [
           'name' => $reflectedMethod->getName(),

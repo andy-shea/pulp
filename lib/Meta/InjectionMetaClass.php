@@ -40,7 +40,7 @@ class InjectionMetaClass {
 
   protected function getInjectableProperties($classProperties, $defaults) {
     foreach ($classProperties as $reflectedProperty) {
-      $inject = $this->annotationReader->getPropertyAnnotation($reflectedProperty, Inject::CLASS);
+      $inject = $this->annotationReader->getPropertyAnnotation($reflectedProperty, Inject::class);
       if ($inject) {
         $name = $reflectedProperty->getName();
         $namedProperty= $this->extractNamedProperty($this->annotationReader, $reflectedProperty);
@@ -58,18 +58,18 @@ class InjectionMetaClass {
   }
 
   protected function extractNamedProperty(Reader $annotationReader, \ReflectionProperty $reflectedProperty) {
-    $namedPropertyAnnotation = $annotationReader->getPropertyAnnotation($reflectedProperty, Named::CLASS);
+    $namedPropertyAnnotation = $annotationReader->getPropertyAnnotation($reflectedProperty, Named::class);
     if ($namedPropertyAnnotation) return $namedPropertyAnnotation->value;
   }
 
   protected function extractProviderProperty(Reader $annotationReader, \ReflectionProperty $reflectedProperty) {
-    $providerPropertyAnnotation = $annotationReader->getPropertyAnnotation($reflectedProperty, Provides::CLASS);
+    $providerPropertyAnnotation = $annotationReader->getPropertyAnnotation($reflectedProperty, Provides::class);
     if ($providerPropertyAnnotation) return $providerPropertyAnnotation->value;
   }
 
   protected function getInjectableMethods($classMethods) {
     foreach ($classMethods as $reflectedMethod) {
-      $inject = $this->annotationReader->getMethodAnnotation($reflectedMethod, Inject::CLASS);
+      $inject = $this->annotationReader->getMethodAnnotation($reflectedMethod, Inject::class);
       if ($inject) {
         $parameters = [];
         $namedParameters = $this->extractNamedParameters($this->annotationReader, $reflectedMethod);
@@ -96,21 +96,21 @@ class InjectionMetaClass {
   // returns the parameter's class name without throwing an exception if the class doesn't exist
   protected function getParameterClassName(\ReflectionParameter $param) {
     preg_match('/> ([^ ]+) /', $param->__toString(), $matches);
-    return (!in_array($matches[1], ['$' . $param->getName(), 'array'], true)) ? $matches[1] : null;
+    return (!in_array($matches[1], ['$' . $param->getName(), 'array'], true)) ? trim($matches[1], '?') : null;
   }
 
   protected function extractNamedParameters(Reader $annotationReader, \ReflectionMethod $reflectedMethod) {
-    $namedParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, Named::CLASS);
+    $namedParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, Named::class);
     return ($namedParametersAnnotations) ? (array)$namedParametersAnnotations->value : [];
   }
 
   protected function extractProviderParameters(Reader $annotationReader, \ReflectionMethod $reflectedMethod) {
-    $providerParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, Provides::CLASS);
+    $providerParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, Provides::class);
     return ($providerParametersAnnotations) ? (array)$providerParametersAnnotations->value : [];
   }
 
   protected function extractAssistedParameters(Reader $annotationReader, \ReflectionMethod $reflectedMethod) {
-    $assistedParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, Assisted::CLASS);
+    $assistedParametersAnnotations = $annotationReader->getMethodAnnotation($reflectedMethod, Assisted::class);
     $assistedParameters = [];
     if ($assistedParametersAnnotations) {
       foreach ((array)$assistedParametersAnnotations->value as $assistedParameter) $assistedParameters[$assistedParameter] = true;

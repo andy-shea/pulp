@@ -57,10 +57,10 @@ class Binder {
   protected function getProviderMethods(Module $module) {
     $reflectedClass = new \ReflectionClass($module);
     foreach ($reflectedClass->getMethods() as $reflectedMethod) {
-      $provides = $this->annotationReader->getMethodAnnotation($reflectedMethod, Provides::CLASS);
+      $provides = $this->annotationReader->getMethodAnnotation($reflectedMethod, Provides::class);
       if ($provides) {
         $binding = $this->bind($provides->value)->toProvider(new ProviderMethod($module, $reflectedMethod->getName()));
-        if ($this->annotationReader->getMethodAnnotation($reflectedMethod, Singleton::CLASS)) {
+        if ($this->annotationReader->getMethodAnnotation($reflectedMethod, Singleton::class)) {
           $binding->in(Scopes::singleton());
         }
       }
