@@ -80,7 +80,9 @@ class Injector {
       }
       $class = new \ReflectionClass($className);
       $object = ($class->getConstructor())
-        ? $class->newInstanceArgs($this->createConstructorParameters($this->classes[$className], $assistedParams))
+        ? $class->newInstanceArgs(
+          array_values($this->createConstructorParameters($this->classes[$className], $assistedParams))
+        )
         : new $className();
       $this->injectMembers($object);
       return $object;
