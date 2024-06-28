@@ -19,9 +19,9 @@ namespace Pulp\Scope;
  */
 class Scopes {
 
-  protected static $scopes = [];
+  protected static array $scopes = [];
 
-  public static function __callStatic($name, $arguments) {
+  public static function __callStatic($name, $arguments): Scope {
     if (!isset(self::$scopes[$name])) {
       switch ($name) {
         case 'instance': self::$scopes[$name] = new InstanceScope(); break;

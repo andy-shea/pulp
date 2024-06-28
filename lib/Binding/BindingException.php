@@ -11,9 +11,11 @@
 
 namespace Pulp\Binding;
 
+use Exception;
+
 /**
  * Exception that is thrown on incorrectly defined dependency bindings.
  *
  * @author Andy Shea <aa.shea@gmail.com>
  */
-class BindingException extends \Exception {}
+class BindingException extends Exception {}

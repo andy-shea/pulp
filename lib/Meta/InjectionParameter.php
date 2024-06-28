@@ -18,64 +18,64 @@ namespace Pulp\Meta;
  */
 class InjectionParameter {
 
-  protected $name;
-  protected $interface;
-  protected $alias;
-  protected $isAssisted = false;
-  protected $isOptional = false;
-  protected $default;
-  protected $provides;
+  protected string $name;
+  protected string $interface;
+  protected ?string $alias = null;
+  protected bool $isAssisted = false;
+  protected bool $isOptional = false;
+  protected mixed $default;
+  protected ?string $provides = null;
 
-  public function __construct($name) {
+  public function __construct(string $name) {
     $this->name = $name;
   }
 
-  public function name() {
+  public function name(): string {
     return $this->name;
   }
 
-  public function setIsAssisted($isAssisted) {
+  public function setIsAssisted(bool $isAssisted): void {
     $this->isAssisted = $isAssisted;
   }
 
-  public function isAssisted() {
+  public function isAssisted(): bool {
     return $this->isAssisted;
   }
 
-  public function setInterface($interface) {
+  public function setInterface(string $interface): void {
     $this->interface = $interface;
   }
 
-  public function setAlias($alias) {
+  public function setAlias(string $alias): void {
     $this->alias = $alias;
   }
 
-  public function isOptional() {
+  public function isOptional(): bool {
     return $this->isOptional;
   }
 
-  public function setDefaultValue($default) {
+  public function setDefaultValue(mixed $default): void {
     $this->default = $default;
     $this->isOptional = true;
   }
 
-  public function defaultValue() {
+  public function defaultValue(): mixed {
     return $this->default;
   }
 
-  public function setProvides($provides) {
+  public function setProvides(string $provides): void {
     $this->provides = $provides;
   }
 
-  public function isProvider() {
+  public function isProvider(): bool {
     return !!$this->provides;
   }
 
-  public function provides() {
+  public function provides(): string {
     return $this->provides;
   }
 
-  public function type() {
+  public function type(): string {
     if ($this->alias !== null) return $this->alias;
     if ($this->interface !== null) return $this->interface;
     return $this->name;

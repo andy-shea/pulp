@@ -18,6 +18,6 @@ namespace Pulp\Provider;
  */
 interface Provider {
 
-  function get();
+  function get(): mixed;
 
 }

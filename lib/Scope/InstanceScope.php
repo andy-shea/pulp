@@ -22,7 +22,12 @@ use Pulp\Injector;
  */
 class InstanceScope implements Scope {
 
-  public function getDependency(Binding $binding, Injector $injector, $assistedParams = null, $isOptional = false) {
+  public function getDependency(
+    Binding $binding,
+    Injector $injector,
+    array $assistedParams = null,
+    bool $isOptional = false
+  ): mixed {
     return $binding->createDependency($injector, $assistedParams, $isOptional);
   }
 

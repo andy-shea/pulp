@@ -21,15 +21,15 @@ use Pulp\Injector;
  */
 class ProviderImpl implements Provider {
 
-  private $injector;
-  private $classPath;
+  private Injector $injector;
+  private string $classPath;
 
-  public function __construct(Injector $injector, $classPath) {
+  public function __construct(Injector $injector, string $classPath) {
     $this->injector = $injector;
     $this->classPath = $classPath;
   }
 
-  public function get() {
+  public function get(): mixed {
     return $this->injector->getInstance($this->classPath);
   }
 
