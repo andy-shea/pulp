@@ -13,7 +13,7 @@ namespace Pulp;
 
 use Pulp\Binding\Binder;
 use Pulp\Binding\Binding;
-use Assisted\FactoryProvider;
+use Pulp\Assisted\FactoryProvider;
 
 /**
  * A support class for `Module`s to ease implementation by reducing repetition.
