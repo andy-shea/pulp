@@ -19,7 +19,7 @@ namespace Pulp\Meta;
 class InjectionParameter {
 
   protected string $name;
-  protected string $interface;
+  protected ?string $interface = null;
   protected ?string $alias = null;
   protected bool $isAssisted = false;
   protected bool $isOptional = false;

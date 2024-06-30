@@ -55,7 +55,7 @@ class InjectionMetaClass {
           $injectionProperty->setProvides($providesType);
         }
         else if ($type = $reflectedProperty->getType()) {
-          $injectionProperty->setInterface($type->getName());
+          if (!$type->isBuiltin()) $injectionProperty->setInterface($type->getName());
         }
         if ($reflectedProperty->hasDefaultValue()) {
           $injectionProperty->setDefaultValue($reflectedProperty->getDefaultValue());
@@ -90,8 +90,9 @@ class InjectionMetaClass {
             $injectionParameter->setProvides($providesType);
           }
           else if ($type = $reflectedParameter->getType()) {
-            $injectionParameter->setInterface($type->getName());
+            if (!$type->isBuiltin()) $injectionParameter->setInterface($type->getName());
           }
+
           if ($reflectedParameter->isDefaultValueAvailable()) {
             $injectionParameter->setDefaultValue($reflectedParameter->getDefaultValue());
           }
