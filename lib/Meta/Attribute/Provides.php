@@ -20,7 +20,7 @@ use Reflector;
  *
  * @author Andy Shea <aa.shea@gmail.com>
  */
-#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_METHOD)]
+#[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_METHOD | Attribute::TARGET_PARAMETER)]
 class Provides {
 
   protected string $type;
